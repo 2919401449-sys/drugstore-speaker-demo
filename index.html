@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>药店广播智能体 - 面试展示版</title>
+  <style>
+    :root {
+      --bg: #f3f7f5;
+      --panel: #ffffff;
+      --text: #17221c;
+      --muted: #64736a;
+      --line: #dbe6df;
+      --primary: #127348;
+      --primary-dark: #0d5a38;
+      --accent: #246b9f;
+      --danger: #b83d3d;
+      --warn: #a96c16;
+      --success: #16825a;
+      --shadow: 0 16px 38px rgba(22, 34, 28, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      background: linear-gradient(180deg, rgba(18,115,72,0.08), transparent 280px), var(--bg);
+    }
+
+    button, select { font: inherit; }
+    .shell { max-width: 1480px; margin: 0 auto; padding: 22px; }
+
+    .topbar {
+      min-height: 108px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      padding: 22px 26px;
+      border-radius: 8px;
+      color: #fff;
+      background: linear-gradient(135deg, #0d5a38, #127348 50%, #246b9f);
+      box-shadow: var(--shadow);
+    }
+
+    .brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+    .brand-mark {
+      width: 54px;
+      height: 54px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 26px;
+      font-weight: 800;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.28);
+      flex: 0 0 auto;
+    }
+
+    h1 { margin: 0; font-size: clamp(26px, 3vw, 38px); line-height: 1.1; letter-spacing: 0; }
+    .brand p { margin: 8px 0 0; color: rgba(255,255,255,0.84); font-size: 14px; }
+
+    .state { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+    .pill {
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.95);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #58da91; box-shadow: 0 0 0 4px rgba(88,218,145,0.22); }
+
+    .grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 390px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .main { display: grid; gap: 14px; min-width: 0; }
+    .cards { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+
+    .card, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 10px 26px rgba(22, 34, 28, 0.05);
+    }
+
+    .card { min-height: 98px; padding: 14px; }
+    .card .label { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 12px; }
+    .card .value { margin-top: 12px; font-size: 30px; line-height: 1; font-weight: 800; color: var(--primary-dark); }
+    .card .hint { margin-top: 10px; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .success .value, .visitor .value { color: var(--success); }
+    .failed .value { color: var(--danger); }
+    .today .value { color: var(--accent); }
+
+    .video-panel { padding: 16px; }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .section-head h2 { margin: 0; font-size: 17px; }
+
+    .video-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+      border: 1px solid #17251e;
+      background: #0d1612;
+      aspect-ratio: 16 / 9;
+    }
+    video, canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    canvas { pointer-events: none; }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .btn {
+      height: 38px;
+      padding: 0 13px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      color: #fff;
+      background: var(--primary);
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn:hover { background: var(--primary-dark); }
+    .btn.secondary { color: var(--text); background: #fff; border-color: var(--line); }
+    .btn.accent { background: var(--accent); }
+    .legend { color: var(--muted); font-size: 12px; margin-left: auto; }
+
+    .content-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      gap: 14px;
+    }
+
+    .filter-bar {
+      display: grid;
+      grid-template-columns: 120px minmax(110px, 1fr) minmax(110px, 1fr) auto auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .filter-bar span { color: var(--muted); font-size: 13px; font-weight: 700; }
+    .filter-bar select {
+      height: 38px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      min-width: 0;
+    }
+
+    .history { display: grid; gap: 10px; padding: 12px; max-height: 430px; overflow: auto; }
+    .history-item {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdfc;
+    }
+    .history-top, .history-bottom { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+    .time { color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #e7f5ee;
+      color: var(--success);
+    }
+    .tag.warn { background: #fff4df; color: var(--warn); }
+    .copy { margin: 10px 0; color: var(--text); line-height: 1.6; font-size: 13px; }
+
+    .side { display: grid; gap: 14px; }
+    .panel { padding: 16px; }
+    .panel h2 { margin: 0 0 12px; font-size: 17px; }
+
+    .config { display: grid; gap: 12px; }
+    .field { display: grid; gap: 6px; }
+    .field label { color: var(--muted); font-size: 13px; font-weight: 700; }
+    .field select {
+      width: 100%;
+      height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 10px;
+      background: #fff;
+    }
+    .source-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f7faf8;
+    }
+    .source-title { font-size: 13px; font-weight: 800; }
+    .source-status { margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+
+    .notes { display: grid; gap: 10px; }
+    .note {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdfc;
+    }
+    .note strong { display: block; margin-bottom: 6px; font-size: 13px; }
+    .note p { margin: 0; color: var(--muted); line-height: 1.6; font-size: 12px; }
+
+    @media (max-width: 1180px) {
+      .grid { grid-template-columns: 1fr; }
+      .side { grid-template-columns: 1fr 1fr; }
+      .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 860px) {
+      .shell { padding: 14px; }
+      .topbar { flex-direction: column; align-items: flex-start; }
+      .state { justify-content: flex-start; }
+      .content-row, .side { grid-template-columns: 1fr; }
+      .filter-bar { grid-template-columns: 1fr 1fr; }
+      .filter-bar span { grid-column: 1 / -1; }
+      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 520px) {
+      .cards, .filter-bar { grid-template-columns: 1fr; }
+      .brand { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="topbar">
+      <div class="brand">
+        <div class="brand-mark">药</div>
+        <div>
+          <h1>药店广播智能体后台</h1>
+          <p>面试展示版 · 本地视频演示 · 不连接真实摄像头和生产 API</p>
+        </div>
+      </div>
+      <div class="state">
+        <span class="pill"><span class="dot"></span>演示运行中</span>
+        <span class="pill">AI 文案生成</span>
+        <span class="pill">YOLO 区域识别</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="main">
+        <div class="cards">
+          <div class="card"><div class="label">总播放次数 <span>广播</span></div><div class="value" id="totalCount">64</div><div class="hint">累计生成并播放</div></div>
+          <div class="card success"><div class="label">成功播放 <span>稳定性</span></div><div class="value" id="successCount">60</div><div class="hint">语音合成完成</div></div>
+          <div class="card failed"><div class="label">播放失败 <span>异常</span></div><div class="value">4</div><div class="hint">API 或音频异常</div></div>
+          <div class="card today"><div class="label">今日播放 <span>今日</span></div><div class="value" id="todayCount">13</div><div class="hint">当日触达次数</div></div>
+          <div class="card visitor"><div class="label">今日到店 <span>客流</span></div><div class="value" id="visitorToday">9</div><div class="hint">去重后的客流</div></div>
+          <div class="card visitor"><div class="label">本周到店 <span>趋势</span></div><div class="value">24</div><div class="hint">最近 7 天累计</div></div>
+        </div>
+
+        <section class="panel video-panel">
+          <div class="section-head">
+            <h2>监控识别演示</h2>
+            <span class="tag">测试录像</span>
+          </div>
+          <div class="video-wrap">
+            <video id="demoVideo" src="demo-video.mp4" muted autoplay loop playsinline></video>
+            <canvas id="zoneCanvas"></canvas>
+          </div>
+          <div class="toolbar">
+            <button class="btn" id="playBtn">暂停视频</button>
+            <button class="btn secondary" id="zoneBtn">隐藏分区</button>
+            <button class="btn accent" id="triggerBtn">模拟触发补剂广告</button>
+            <span class="legend">蓝线：识别分区 · 红线：有人停留 · 绿色框：顾客 · staff：工作人员</span>
+          </div>
+        </section>
+
+        <div class="content-row">
+          <section class="card" style="padding:0; overflow:hidden;">
+            <div class="filter-bar">
+              <span>广播记录</span>
+              <select><option>全部状态</option><option>成功</option><option>失败</option></select>
+              <select><option>全部时段</option><option>早上</option><option>下午</option></select>
+              <button class="btn secondary">重置</button>
+              <button class="btn accent">刷新</button>
+            </div>
+            <div class="history" id="historyList"></div>
+          </section>
+
+          <section class="panel">
+            <h2>当前播放文案</h2>
+            <div class="note">
+              <strong id="copyTitle">补剂区域广告</strong>
+              <p id="currentCopy">亲爱的顾客朋友，欢迎关注补剂区域。当前天气小雨，气温 25.2℃，建议您结合自身需要选择合适的健康用品。如需了解产品适用人群、使用方法或搭配建议，欢迎咨询店内专业药师。</p>
+            </div>
+            <div class="notes" style="margin-top:12px;">
+              <div class="note"><strong>合规处理</strong><p>生成文案会过滤绝对化、治疗承诺和 Markdown 星号，避免被语音朗读成符号。</p></div>
+              <div class="note"><strong>触发策略</strong><p>顾客在分区停留超过 5 秒后触发，广告播放完成后进入 30 秒冷却。</p></div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <aside class="side">
+        <section class="panel">
+          <h2>硬件配置</h2>
+          <div class="config">
+            <div class="field"><label>运行设备</label><select><option>CPU（演示模式）</option><option>GPU（生产模式）</option></select></div>
+            <div class="field"><label>检测间隔</label><select><option>0.3 秒/帧</option><option>0.5 秒/帧</option><option>1.0 秒/帧</option></select></div>
+            <div class="source-box">
+              <div><div class="source-title">视频源</div><div class="source-status" id="sourceStatus">当前：测试录像 demo-video.mp4</div></div>
+              <button class="btn secondary" id="sourceBtn">切换</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>项目亮点</h2>
+          <div class="notes">
+            <div class="note"><strong>多源输入</strong><p>支持实时 RTSP 监控和本地测试录像切换，便于门店落地和调试。</p></div>
+            <div class="note"><strong>视觉识别</strong><p>YOLO 检测人体后，按药柜多边形区域判断停留，并过滤浅蓝大褂工作人员。</p></div>
+            <div class="note"><strong>AI 广播</strong><p>结合天气、时段和药柜分类生成文案，通过 TTS 播放并压低背景音乐。</p></div>
+            <div class="note"><strong>运营闭环</strong><p>记录播放历史、客流统计、成功失败状态，后台可直接查看监控画面。</p></div>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const video = document.getElementById('demoVideo');
+    const canvas = document.getElementById('zoneCanvas');
+    const ctx = canvas.getContext('2d');
+    const playBtn = document.getElementById('playBtn');
+    const zoneBtn = document.getElementById('zoneBtn');
+    const triggerBtn = document.getElementById('triggerBtn');
+    const sourceBtn = document.getElementById('sourceBtn');
+    const sourceStatus = document.getElementById('sourceStatus');
+    const historyList = document.getElementById('historyList');
+    const currentCopy = document.getElementById('currentCopy');
+    const copyTitle = document.getElementById('copyTitle');
+
+    let showZones = true;
+    let demoSource = 'video';
+    const zones = [
+      { name: '医疗器械', points: [[.04,.17],[.24,.16],[.29,.31],[.19,.39],[.03,.33]], label: [.15,.25], color: '#2f6bff' },
+      { name: '口罩棉签', points: [[.11,.39],[.34,.32],[.39,.43],[.20,.53],[.08,.47]], label: [.23,.43], color: '#ff9f1a' },
+      { name: '计生用品', points: [[.31,.12],[.51,.07],[.55,.20],[.39,.31],[.27,.24]], label: [.42,.18], color: '#16a66a' },
+      { name: '血糖血压', points: [[.53,.03],[.68,.03],[.68,.17],[.56,.24],[.50,.14]], label: [.60,.11], color: '#b85cff' },
+      { name: '补剂', points: [[.31,.32],[.68,.21],[.72,.43],[.42,.58],[.22,.47]], label: [.47,.39], color: '#2c92ff', active: true },
+      { name: '维生素', points: [[.20,.48],[.43,.43],[.45,.60],[.26,.68],[.15,.58]], label: [.30,.54], color: '#f0c92a' },
+      { name: '心脑血管', points: [[.00,.55],[.18,.49],[.28,1.00],[.00,1.00]], label: [.12,.72], color: '#e14c92' },
+      { name: '收银台', points: [[.53,.64],[.78,.54],[.83,1.00],[.50,1.00]], label: [.66,.80], color: '#00c7d8' },
+      { name: '入口区', points: [[.71,.07],[.90,.08],[.90,.46],[.76,.58],[.68,.38]], label: [.79,.28], color: '#ff4d3d' },
+      { name: '咳嗽感冒', points: [[.88,.32],[1.00,.38],[1.00,1.00],[.90,1.00],[.80,.64]], label: [.92,.66], color: '#35c875' }
+    ];
+
+    const histories = [
+      ['16:21:04', '补剂', '亲爱的顾客朋友，欢迎关注补剂区域。当前天气小雨，气温 25.2℃，建议您结合自身需要选择合适的健康用品。'],
+      ['16:18:32', '入口客流', '识别到新顾客进店，今日到店人数完成去重记录。'],
+      ['16:05:56', '血糖血压', '顾客在血糖血压测量区停留，系统触发健康测量相关广播。'],
+      ['15:58:11', '心脑血管', '结合阴雨天气，提醒顾客关注血压变化和日常健康管理。']
+    ];
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = Math.round(rect.width * ratio);
+      canvas.height = Math.round(rect.height * ratio);
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      drawOverlay();
+    }
+
+    function drawLabel(text, x, y, color) {
+      ctx.font = '12px Microsoft YaHei, Arial';
+      const paddingX = 8;
+      const height = 25;
+      const width = ctx.measureText(text).width + paddingX * 2;
+      const left = Math.max(8, Math.min(canvas.clientWidth - width - 8, x - width / 2));
+      const top = Math.max(8, Math.min(canvas.clientHeight - height - 8, y - height / 2));
+      ctx.fillStyle = 'rgba(12, 20, 16, 0.78)';
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(left, top, width, height, 6);
+      } else {
+        ctx.rect(left, top, width, height);
+      }
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#fff';
+      ctx.fillText(text, left + paddingX, top + 17);
+    }
+
+    function drawPolygon(zone, active) {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      ctx.beginPath();
+      zone.points.forEach(([x, y], index) => {
+        const px = x * w;
+        const py = y * h;
+        index === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      });
+      ctx.closePath();
+      ctx.fillStyle = active ? 'rgba(255,77,61,0.16)' : 'rgba(255,255,255,0.045)';
+      ctx.fill();
+      ctx.strokeStyle = active ? '#ff4d3d' : zone.color;
+      ctx.lineWidth = active ? 2.6 : 1.7;
+      ctx.setLineDash(active ? [] : [6, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const [labelX, labelY] = zone.label || [
+        zone.points.reduce((sum, p) => sum + p[0], 0) / zone.points.length,
+        zone.points.reduce((sum, p) => sum + p[1], 0) / zone.points.length
+      ];
+      drawLabel(zone.name, labelX * w, labelY * h, active ? '#ff4d3d' : zone.color);
+    }
+
+    function drawOverlay() {
+      ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+      if (!showZones) return;
+      zones.forEach(zone => drawPolygon(zone, zone.active));
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      ctx.strokeStyle = '#20d87a';
+      ctx.lineWidth = 2.2;
+      ctx.strokeRect(w * .73, h * .25, w * .08, h * .38);
+      drawLabel('顾客', w * .77, h * .22, '#20d87a');
+      ctx.strokeStyle = '#45d8ff';
+      ctx.lineWidth = 2.2;
+      ctx.strokeRect(w * .86, h * .28, w * .07, h * .36);
+      drawLabel('staff', w * .895, h * .25, '#45d8ff');
+    }
+
+    function renderHistory() {
+      historyList.innerHTML = histories.map(([time, zone, text], index) => `
+        <article class="history-item">
+          <div class="history-top">
+            <span class="time">2026-07-01 ${time}</span>
+            <span class="tag ${zone === '入口客流' ? 'warn' : ''}">${zone}</span>
+          </div>
+          <p class="copy">${text}</p>
+          <div class="history-bottom">
+            <span class="time">播音员：云希</span>
+            <span class="tag">成功</span>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    playBtn.addEventListener('click', () => {
+      if (video.paused) {
+        video.play();
+        playBtn.textContent = '暂停视频';
+      } else {
+        video.pause();
+        playBtn.textContent = '播放视频';
+      }
+    });
+
+    zoneBtn.addEventListener('click', () => {
+      showZones = !showZones;
+      zoneBtn.textContent = showZones ? '隐藏分区' : '显示分区';
+      drawOverlay();
+    });
+
+    triggerBtn.addEventListener('click', () => {
+      const text = '亲爱的顾客朋友，欢迎关注补剂区域。当前天气小雨，气温 25.2℃，建议您结合自身需要选择合适的健康用品。如需了解产品适用人群、使用方法或搭配建议，欢迎咨询店内专业药师。';
+      histories.unshift([new Date().toLocaleTimeString('zh-CN', { hour12: false }), '补剂', text]);
+      copyTitle.textContent = '补剂区域广告';
+      currentCopy.textContent = text;
+      document.getElementById('totalCount').textContent = String(Number(document.getElementById('totalCount').textContent) + 1);
+      document.getElementById('successCount').textContent = String(Number(document.getElementById('successCount').textContent) + 1);
+      document.getElementById('todayCount').textContent = String(Number(document.getElementById('todayCount').textContent) + 1);
+      renderHistory();
+    });
+
+    sourceBtn.addEventListener('click', () => {
+      demoSource = demoSource === 'video' ? 'camera' : 'video';
+      sourceStatus.textContent = demoSource === 'video'
+        ? '当前：测试录像 demo-video.mp4'
+        : '当前：监控画面 RTSP 演示占位';
+    });
+
+    window.addEventListener('resize', resizeCanvas);
+    video.addEventListener('loadedmetadata', resizeCanvas);
+    renderHistory();
+    resizeCanvas();
+    setInterval(drawOverlay, 1000);
+  </script>
+</body>
+</html>
