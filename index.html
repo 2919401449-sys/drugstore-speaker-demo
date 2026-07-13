@@ -1,523 +1,1386 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>药店广播智能体 - 面试展示版</title>
-  <style>
-    :root {
-      --bg: #f3f7f5;
-      --panel: #ffffff;
-      --text: #17221c;
-      --muted: #64736a;
-      --line: #dbe6df;
-      --primary: #127348;
-      --primary-dark: #0d5a38;
-      --accent: #246b9f;
-      --danger: #b83d3d;
-      --warn: #a96c16;
-      --success: #16825a;
-      --shadow: 0 16px 38px rgba(22, 34, 28, 0.08);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>药店广播智能体后台</title>
+    <style>
+        :root {
+            --primary: #176b4d;
+            --primary-dark: #0f4f3a;
+            --primary-soft: #e8f4ef;
+            --blue: #2c67a5;
+            --blue-soft: #eaf2fb;
+            --danger: #c94848;
+            --danger-soft: #fcecec;
+            --warning: #b76e00;
+            --warning-soft: #fff4dd;
+            --success: #168457;
+            --success-soft: #e8f6ef;
+            --text: #17242b;
+            --muted: #687780;
+            --line: #dde6e3;
+            --surface: #ffffff;
+            --bg: #f3f6f8;
+            --shadow: 0 10px 30px rgba(24, 48, 58, 0.07);
+            --radius: 8px;
+        }
 
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--text);
-      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
-      background: linear-gradient(180deg, rgba(18,115,72,0.08), transparent 280px), var(--bg);
-    }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; min-height: 100%; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+        }
+        button, input, select { font: inherit; }
+        button { cursor: pointer; }
 
-    button, select { font: inherit; }
-    .shell { max-width: 1480px; margin: 0 auto; padding: 22px; }
+        .app {
+            display: grid;
+            grid-template-columns: 240px minmax(0, 1fr);
+            min-height: 100vh;
+        }
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            padding: 22px 16px;
+            display: flex;
+            flex-direction: column;
+            color: #fff;
+            background: linear-gradient(180deg, #104d3a 0%, #123a35 64%, #17323a 100%);
+        }
+        .brand {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 8px 8px 24px;
+        }
+        .brand-mark {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            flex: 0 0 auto;
+            font-size: 22px;
+            font-weight: 800;
+            background: rgba(255,255,255,0.13);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .brand h1 {
+            margin: 0;
+            font-size: 17px;
+            line-height: 1.25;
+        }
+        .brand p {
+            margin: 4px 0 0;
+            font-size: 12px;
+            opacity: 0.72;
+        }
+        .nav-label {
+            margin: 10px 0 8px;
+            padding: 0 12px;
+            font-size: 11px;
+            letter-spacing: 0;
+            opacity: 0.58;
+        }
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .nav-btn {
+            width: 100%;
+            border: 0;
+            border-radius: 8px;
+            padding: 11px 12px;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            color: rgba(255,255,255,0.78);
+            background: transparent;
+            text-align: left;
+            transition: 0.18s ease;
+        }
+        .nav-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .nav-btn.active {
+            background: #fff;
+            color: var(--primary-dark);
+            font-weight: 800;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+        }
+        .nav-icon {
+            width: 20px;
+            display: inline-flex;
+            justify-content: center;
+            flex: 0 0 auto;
+        }
+        .sidebar-bottom {
+            margin-top: auto;
+            padding: 16px 10px 6px;
+            border-top: 1px solid rgba(255,255,255,0.12);
+        }
+        .store { font-size: 13px; font-weight: 700; }
+        .store-sub { margin-top: 5px; font-size: 11px; opacity: 0.62; }
 
-    .topbar {
-      min-height: 108px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 18px;
-      padding: 22px 26px;
-      border-radius: 8px;
-      color: #fff;
-      background: linear-gradient(135deg, #0d5a38, #127348 50%, #246b9f);
-      box-shadow: var(--shadow);
-    }
+        .main { min-width: 0; }
+        .topbar {
+            height: 74px;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 0 28px;
+            border-bottom: 1px solid var(--line);
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(14px);
+        }
+        .topbar-left h2 { margin: 0; font-size: 20px; }
+        .topbar-left p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+        .topbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .pill {
+            min-height: 36px;
+            padding: 0 12px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            color: var(--muted);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #29c779;
+            box-shadow: 0 0 0 4px rgba(41,199,121,0.12);
+        }
+        .content {
+            max-width: 1680px;
+            margin: 0 auto;
+            padding: 24px 28px 40px;
+        }
+        .view { display: none; }
+        .view.active { display: block; }
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 18px;
+            margin-bottom: 16px;
+        }
+        .section-heading h3 { margin: 0; font-size: 22px; }
+        .section-heading p { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
 
-    .brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
-    .brand-mark {
-      width: 54px;
-      height: 54px;
-      border-radius: 8px;
-      display: grid;
-      place-items: center;
-      font-size: 26px;
-      font-weight: 800;
-      background: rgba(255,255,255,0.16);
-      border: 1px solid rgba(255,255,255,0.28);
-      flex: 0 0 auto;
-    }
+        .grid { display: grid; gap: 16px; }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 16px; }
+        .kpi {
+            min-height: 124px;
+            padding: 18px 19px;
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi::after {
+            content: "";
+            position: absolute;
+            right: -20px;
+            bottom: -30px;
+            width: 105px;
+            height: 105px;
+            border-radius: 50%;
+            background: var(--primary-soft);
+        }
+        .kpi.blue::after { background: var(--blue-soft); }
+        .kpi.danger::after { background: var(--danger-soft); }
+        .clickable-card { cursor: pointer; transition: transform 0.16s ease, box-shadow 0.16s ease; }
+        .clickable-card:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(24, 48, 58, 0.1); }
+        .kpi .label {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+        .kpi .value {
+            position: relative;
+            z-index: 1;
+            margin: 18px 0 8px;
+            font-size: 34px;
+            line-height: 1;
+            font-weight: 800;
+            color: var(--primary-dark);
+        }
+        .kpi.blue .value { color: var(--blue); }
+        .kpi.danger .value { color: var(--danger); }
+        .kpi .meta { position: relative; z-index: 1; color: var(--muted); font-size: 12px; }
+        .delta {
+            padding: 4px 7px;
+            border-radius: 999px;
+            background: var(--success-soft);
+            color: var(--success);
+            font-size: 11px;
+            white-space: nowrap;
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            min-height: 24px;
+            padding: 0 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .tag.success { background: var(--success-soft); color: var(--success); }
+        .tag.fail { background: var(--danger-soft); color: var(--danger); }
+        .tag.info { background: var(--blue-soft); color: var(--blue); }
 
-    h1 { margin: 0; font-size: clamp(26px, 3vw, 38px); line-height: 1.1; letter-spacing: 0; }
-    .brand p { margin: 8px 0 0; color: rgba(255,255,255,0.84); font-size: 14px; }
+        .dashboard-main { grid-template-columns: minmax(0, 1.65fr) minmax(320px, 0.85fr); margin-bottom: 16px; }
+        .camera-card { overflow: hidden; }
+        .card-header {
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .card-header h4 { margin: 0; font-size: 15px; }
+        .card-header p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+        .live {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--success);
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .camera-wrap {
+            position: relative;
+            background: #10262b;
+            aspect-ratio: 16 / 8.4;
+            overflow: hidden;
+        }
+        .big-camera .camera-wrap { aspect-ratio: 16 / 9; }
+        .camera-wrap img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #101b1f;
+        }
+        .camera-overlay {
+            position: absolute;
+            left: 14px;
+            top: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .overlay-chip {
+            padding: 7px 9px;
+            border-radius: 8px;
+            background: rgba(12,25,29,0.72);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
+            font-size: 11px;
+            backdrop-filter: blur(8px);
+        }
+        .camera-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+        }
+        .camera-stats {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            color: var(--muted);
+            font-size: 12px;
+        }
+        .health { padding: 16px 18px; }
+        .health-list { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+        .health-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 11px 12px;
+            background: #f8fafa;
+            border: 1px solid #e6ecea;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .status-good { color: var(--success); font-size: 12px; font-weight: 800; }
+        .status-warn { color: var(--warning); font-size: 12px; font-weight: 800; }
+        .status-bad { color: var(--danger); font-size: 12px; font-weight: 800; }
+        .status-unknown { color: var(--muted); font-size: 12px; font-weight: 800; }
+        .notice {
+            margin-top: 12px;
+            padding: 12px 13px;
+            border-radius: 8px;
+            background: var(--warning-soft);
+            color: #805000;
+            font-size: 12px;
+            line-height: 1.65;
+        }
+        .bottom-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
+        .chart-card { padding: 18px; }
+        .chart-title { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .chart-title h4 { margin: 0; font-size: 15px; }
+        .chart-title span { color: var(--muted); font-size: 12px; }
+        .bars {
+            height: 220px;
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            padding: 24px 12px 28px;
+            background: linear-gradient(180deg, #fbfdfc 0%, #f4f8f6 100%);
+            border-radius: 8px;
+        }
+        .bar-group { flex: 1; height: 100%; display: flex; align-items: flex-end; justify-content: center; gap: 4px; position: relative; }
+        .bar { width: 16px; min-height: 10px; border-radius: 6px 6px 2px 2px; background: var(--primary); }
+        .bar.secondary { background: #9bc7b7; }
+        .bar-label { position: absolute; bottom: -22px; color: var(--muted); font-size: 11px; }
+        .rank-list { display: grid; gap: 14px; }
+        .rank-row { display: grid; gap: 7px; }
+        .rank-top { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; }
+        .rank-track { height: 9px; border-radius: 999px; background: #edf2f0; overflow: hidden; }
+        .rank-fill { height: 100%; border-radius: inherit; background: var(--primary); }
 
-    .state { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
-    .pill {
-      min-height: 36px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 0 12px;
-      border: 1px solid rgba(255,255,255,0.25);
-      border-radius: 8px;
-      background: rgba(255,255,255,0.15);
-      color: rgba(255,255,255,0.95);
-      font-size: 13px;
-      white-space: nowrap;
-    }
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: #58da91; box-shadow: 0 0 0 4px rgba(88,218,145,0.22); }
+        .primary-btn, .secondary-btn, .danger-btn, .btn {
+            min-height: 38px;
+            border-radius: 8px;
+            padding: 0 14px;
+            font-weight: 700;
+            border: 1px solid transparent;
+        }
+        .primary-btn, .btn { background: var(--primary); color: #fff; }
+        .primary-btn:hover, .btn:hover { background: var(--primary-dark); }
+        .secondary-btn, .btn-secondary { background: #fff; border-color: var(--line); color: var(--text); }
+        .btn-accent { background: var(--blue); color: #fff; }
+        .btn-accent:hover { background: #174d84; }
+        .btn-save { width: 100%; margin-top: 14px; background: var(--warning); color: #fff; }
+        .btn-save:hover { background: #965b00; }
+        .btn:disabled, .secondary-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
-    .grid {
-      margin-top: 18px;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 390px;
-      gap: 18px;
-      align-items: start;
-    }
+        .toolbar, .filter-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .filter-bar {
+            padding: 14px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        .filter-label { color: var(--muted); font-size: 13px; font-weight: 800; white-space: nowrap; }
+        .field, .filter-bar select, .filter-bar input, .config-item select, .config-item input[type="number"] {
+            height: 38px;
+            min-width: 150px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 0 11px;
+            background: #fff;
+            color: var(--text);
+            outline: none;
+        }
+        .field:focus, .filter-bar select:focus, .filter-bar input:focus, .config-item select:focus, .config-item input[type="number"]:focus {
+            border-color: rgba(23,107,77,0.55);
+            box-shadow: 0 0 0 3px rgba(23,107,77,0.12);
+        }
 
-    .main { display: grid; gap: 14px; min-width: 0; }
-    .cards { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+        .history-list { display: grid; gap: 12px; }
+        .history-item {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px 18px;
+            background: #f8fbf9;
+            border-bottom: 1px solid var(--line);
+        }
+        .item-time { font-size: 16px; font-weight: 800; white-space: nowrap; }
+        .item-meta { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; color: var(--muted); font-size: 12px; }
+        .item-meta span {
+            min-height: 28px;
+            display: inline-flex;
+            align-items: center;
+            padding: 0 10px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid var(--line);
+        }
+        .item-content {
+            padding: 18px;
+            color: #29332d;
+            font-size: 15px;
+            line-height: 1.85;
+            white-space: pre-wrap;
+        }
+        .error-reason {
+            margin: 0 18px 18px;
+            padding: 11px 12px;
+            border-radius: 8px;
+            background: var(--danger-soft);
+            color: var(--danger);
+            border: 1px solid rgba(201,72,72,0.22);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 18px;
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 13px;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 28px;
+            padding: 0 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .status-success { background: var(--success-soft); color: var(--success); }
+        .status-failed { background: var(--danger-soft); color: var(--danger); }
+        .empty-state {
+            min-height: 220px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            background: var(--surface);
+            border: 1px dashed #c8d6ce;
+            border-radius: 8px;
+            color: var(--muted);
+            padding: 42px 20px;
+        }
+        .empty-state .icon { font-size: 34px; margin-bottom: 10px; }
 
-    .card, .panel {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      box-shadow: 0 10px 26px rgba(22, 34, 28, 0.05);
-    }
+        .monitor-grid { grid-template-columns: minmax(0, 1.8fr) minmax(300px, 0.7fr); }
+        .legend { padding: 16px 18px; }
+        .legend-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 12px; }
+        .legend-item { padding: 10px; border-radius: 8px; background: #f8fafa; border: 1px solid #e8eeec; font-size: 12px; }
+        .event-stream { padding: 0 18px 16px; }
+        .event { display: grid; grid-template-columns: 70px 1fr; gap: 10px; padding: 11px 0; border-bottom: 1px solid #edf1f0; font-size: 12px; }
+        .event:last-child { border-bottom: 0; }
+        .event time { color: var(--muted); }
 
-    .card { min-height: 98px; padding: 14px; }
-    .card .label { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 12px; }
-    .card .value { margin-top: 12px; font-size: 30px; line-height: 1; font-weight: 800; color: var(--primary-dark); }
-    .card .hint { margin-top: 10px; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .success .value, .visitor .value { color: var(--success); }
-    .failed .value { color: var(--danger); }
-    .today .value { color: var(--accent); }
+        .analytics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 16px; }
+        .table-card { overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 13px 14px; border-bottom: 1px solid #edf1f0; text-align: left; font-size: 12px; vertical-align: middle; }
+        th { background: #fbfcfc; color: var(--muted); font-weight: 800; }
+        td { color: #334249; }
+        tr:last-child td { border-bottom: 0; }
 
-    .video-panel { padding: 16px; }
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-    .section-head h2 { margin: 0; font-size: 17px; }
+        .settings-layout { grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr); }
+        .settings-card { padding: 20px; }
+        .settings-card h4 { margin: 0 0 16px; font-size: 16px; }
+        .form-row {
+            display: grid;
+            grid-template-columns: 190px 1fr;
+            gap: 18px;
+            padding: 16px 0;
+            border-bottom: 1px solid #edf1f0;
+        }
+        .form-row:last-child { border-bottom: 0; }
+        .form-title { font-size: 13px; font-weight: 800; }
+        .form-help { margin-top: 5px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+        .control-stack { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .input-with-unit { display: flex; align-items: center; gap: 8px; }
+        .input-with-unit input { flex: 1; min-width: 0; }
+        .unit { color: var(--muted); font-size: 12px; white-space: nowrap; }
+        .source-control {
+            margin-top: 14px;
+            padding: 12px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #f7faf8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+        .source-title { color: var(--text); font-size: 13px; font-weight: 800; }
+        .source-status { margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+        .config-tip, .config-msg {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .config-tip { background: var(--primary-soft); color: var(--muted); }
+        .config-tip strong { color: var(--primary-dark); }
+        .config-msg { display: none; }
+        .config-msg.success { display: block; background: var(--success-soft); color: var(--success); }
+        .config-msg.error { display: block; background: var(--danger-soft); color: var(--danger); }
+        .savebar {
+            position: sticky;
+            bottom: 18px;
+            margin-top: 16px;
+            padding: 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            box-shadow: 0 16px 40px rgba(14,50,56,0.12);
+        }
 
-    .video-wrap {
-      position: relative;
-      overflow: hidden;
-      border-radius: 8px;
-      border: 1px solid #17251e;
-      background: #0d1612;
-      aspect-ratio: 16 / 9;
-    }
-    video, canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    canvas { pointer-events: none; }
+        .diag-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 16px; }
+        .diag { padding: 17px; }
+        .diag.abnormal { border-color: rgba(201,72,72,0.35); background: linear-gradient(180deg, #fff, #fff8f8); }
+        .diag.unknown { border-color: rgba(183,110,0,0.28); background: linear-gradient(180deg, #fff, #fffaf0); }
+        .health-summary { padding: 18px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; gap: 14px; }
+        .health-summary h4 { margin: 0; font-size: 16px; }
+        .health-summary p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+        .latest-error { padding: 14px 16px; background: #102126; color: #c8d8d3; border-radius: 0 0 8px 8px; font-size: 13px; line-height: 1.7; }
+        .diag-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .diag h4 { margin: 0; font-size: 14px; }
+        .diag p { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+        .logs {
+            padding: 14px 16px;
+            background: #102126;
+            color: #c8d8d3;
+            border-radius: 0 0 8px 8px;
+            font: 12px/1.8 Consolas, "Microsoft YaHei", monospace;
+            max-height: 280px;
+            overflow: auto;
+        }
+        .toast {
+            position: fixed;
+            right: 26px;
+            bottom: 24px;
+            z-index: 99;
+            padding: 12px 16px;
+            border-radius: 8px;
+            background: #17352d;
+            color: #fff;
+            box-shadow: 0 16px 32px rgba(0,0,0,0.2);
+            transform: translateY(24px);
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.25s ease;
+            font-size: 13px;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
 
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-      margin-top: 12px;
-    }
-    .btn {
-      height: 38px;
-      padding: 0 13px;
-      border: 1px solid transparent;
-      border-radius: 8px;
-      color: #fff;
-      background: var(--primary);
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .btn:hover { background: var(--primary-dark); }
-    .btn.secondary { color: var(--text); background: #fff; border-color: var(--line); }
-    .btn.accent { background: var(--accent); }
-    .legend { color: var(--muted); font-size: 12px; margin-left: auto; }
+        @media (max-width: 1120px) {
+            .app { grid-template-columns: 82px 1fr; }
+            .brand h1, .brand p, .nav-btn span:not(.nav-icon), .nav-label, .sidebar-bottom { display: none; }
+            .brand { justify-content: center; padding-inline: 0; }
+            .nav-btn { justify-content: center; }
+            .dashboard-main, .bottom-grid, .monitor-grid, .settings-layout { grid-template-columns: 1fr; }
+            .kpis { grid-template-columns: repeat(2, 1fr); }
+            .diag-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 720px) {
+            .app { display: block; }
+            .sidebar { position: static; height: auto; padding: 12px; }
+            .brand h1, .brand p, .nav-btn span:not(.nav-icon), .nav-label, .sidebar-bottom { display: block; }
+            .nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .nav-btn { justify-content: center; }
+            .topbar { height: auto; padding: 16px; align-items: flex-start; flex-direction: column; }
+            .topbar-right .pill:not(:first-child) { display: none; }
+            .content { padding: 16px; }
+            .kpis, .analytics-grid, .diag-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; gap: 10px; }
+            .table-card { overflow: auto; }
+            table { min-width: 720px; }
+            .item-header, .item-footer { flex-direction: column; align-items: flex-start; }
+            .item-time { white-space: normal; }
+        }
 
-    .content-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
-      gap: 14px;
-    }
-
-    .filter-bar {
-      display: grid;
-      grid-template-columns: 120px minmax(110px, 1fr) minmax(110px, 1fr) auto auto;
-      gap: 10px;
-      align-items: center;
-      padding: 12px;
-      border-bottom: 1px solid var(--line);
-    }
-    .filter-bar span { color: var(--muted); font-size: 13px; font-weight: 700; }
-    .filter-bar select {
-      height: 38px;
-      padding: 0 10px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-      color: var(--text);
-      min-width: 0;
-    }
-
-    .history { display: grid; gap: 10px; padding: 12px; max-height: 430px; overflow: auto; }
-    .history-item {
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fbfdfc;
-    }
-    .history-top, .history-bottom { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
-    .time { color: var(--muted); font-size: 12px; white-space: nowrap; }
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      min-height: 24px;
-      padding: 0 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      background: #e7f5ee;
-      color: var(--success);
-    }
-    .tag.warn { background: #fff4df; color: var(--warn); }
-    .copy { margin: 10px 0; color: var(--text); line-height: 1.6; font-size: 13px; }
-
-    .side { display: grid; gap: 14px; }
-    .panel { padding: 16px; }
-    .panel h2 { margin: 0 0 12px; font-size: 17px; }
-
-    .config { display: grid; gap: 12px; }
-    .field { display: grid; gap: 6px; }
-    .field label { color: var(--muted); font-size: 13px; font-weight: 700; }
-    .field select {
-      width: 100%;
-      height: 40px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 0 10px;
-      background: #fff;
-    }
-    .source-box {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #f7faf8;
-    }
-    .source-title { font-size: 13px; font-weight: 800; }
-    .source-status { margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.45; }
-
-    .notes { display: grid; gap: 10px; }
-    .note {
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fbfdfc;
-    }
-    .note strong { display: block; margin-bottom: 6px; font-size: 13px; }
-    .note p { margin: 0; color: var(--muted); line-height: 1.6; font-size: 12px; }
-
-    @media (max-width: 1180px) {
-      .grid { grid-template-columns: 1fr; }
-      .side { grid-template-columns: 1fr 1fr; }
-      .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
-    @media (max-width: 860px) {
-      .shell { padding: 14px; }
-      .topbar { flex-direction: column; align-items: flex-start; }
-      .state { justify-content: flex-start; }
-      .content-row, .side { grid-template-columns: 1fr; }
-      .filter-bar { grid-template-columns: 1fr 1fr; }
-      .filter-bar span { grid-column: 1 / -1; }
-      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 520px) {
-      .cards, .filter-bar { grid-template-columns: 1fr; }
-      .brand { align-items: flex-start; }
-    }
-  </style>
+        .camera-wrap video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            background: #111;
+        }
+        .demo-ribbon {
+            margin-bottom: 16px;
+            padding: 10px 14px;
+            border: 1px solid #cfe1da;
+            border-radius: 8px;
+            color: #315e4e;
+            background: #eef8f4;
+            font-size: 13px;
+        }
+    </style>
 </head>
 <body>
-  <main class="shell">
-    <section class="topbar">
-      <div class="brand">
-        <div class="brand-mark">药</div>
-        <div>
-          <h1>药店广播智能体后台</h1>
-          <p>面试展示版 · 本地视频演示 · 不连接真实摄像头和生产 API</p>
-        </div>
-      </div>
-      <div class="state">
-        <span class="pill"><span class="dot"></span>演示运行中</span>
-        <span class="pill">AI 文案生成</span>
-        <span class="pill">YOLO 区域识别</span>
-      </div>
-    </section>
-
-    <section class="grid">
-      <div class="main">
-        <div class="cards">
-          <div class="card"><div class="label">总播放次数 <span>广播</span></div><div class="value" id="totalCount">64</div><div class="hint">累计生成并播放</div></div>
-          <div class="card success"><div class="label">成功播放 <span>稳定性</span></div><div class="value" id="successCount">60</div><div class="hint">语音合成完成</div></div>
-          <div class="card failed"><div class="label">播放失败 <span>异常</span></div><div class="value">4</div><div class="hint">API 或音频异常</div></div>
-          <div class="card today"><div class="label">今日播放 <span>今日</span></div><div class="value" id="todayCount">13</div><div class="hint">当日触达次数</div></div>
-          <div class="card visitor"><div class="label">今日到店 <span>客流</span></div><div class="value" id="visitorToday">9</div><div class="hint">去重后的客流</div></div>
-          <div class="card visitor"><div class="label">本周到店 <span>趋势</span></div><div class="value">24</div><div class="hint">最近 7 天累计</div></div>
-        </div>
-
-        <section class="panel video-panel">
-          <div class="section-head">
-            <h2>监控识别演示</h2>
-            <span class="tag">测试录像</span>
-          </div>
-          <div class="video-wrap">
-            <video id="demoVideo" src="demo-video.mp4" muted autoplay loop playsinline></video>
-            <canvas id="zoneCanvas"></canvas>
-          </div>
-          <div class="toolbar">
-            <button class="btn" id="playBtn">暂停视频</button>
-            <button class="btn secondary" id="zoneBtn">隐藏分区</button>
-            <button class="btn accent" id="triggerBtn">模拟触发补剂广告</button>
-            <span class="legend">蓝线：识别分区 · 红线：有人停留 · 绿色框：顾客 · staff：工作人员</span>
-          </div>
-        </section>
-
-        <div class="content-row">
-          <section class="card" style="padding:0; overflow:hidden;">
-            <div class="filter-bar">
-              <span>广播记录</span>
-              <select><option>全部状态</option><option>成功</option><option>失败</option></select>
-              <select><option>全部时段</option><option>早上</option><option>下午</option></select>
-              <button class="btn secondary">重置</button>
-              <button class="btn accent">刷新</button>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-mark" aria-hidden="true">药</div>
+                <div>
+                    <h1>药店广播智能体</h1>
+                    <p>门店智能运营后台</p>
+                </div>
             </div>
-            <div class="history" id="historyList"></div>
-          </section>
-
-          <section class="panel">
-            <h2>当前播放文案</h2>
-            <div class="note">
-              <strong id="copyTitle">补剂区域广告</strong>
-              <p id="currentCopy">亲爱的顾客朋友，欢迎关注补剂区域。当前天气小雨，气温 25.2℃，建议您结合自身需要选择合适的健康用品。如需了解产品适用人群、使用方法或搭配建议，欢迎咨询店内专业药师。</p>
+            <div class="nav-label">经营管理</div>
+            <nav class="nav">
+                <button class="nav-btn active" data-view="overview"><span class="nav-icon">▣</span><span>运营概览</span></button>
+                <button class="nav-btn" data-view="monitor"><span class="nav-icon">◎</span><span>实时监控</span></button>
+                <button class="nav-btn" data-view="history"><span class="nav-icon">≡</span><span>广播记录</span></button>
+                <button class="nav-btn" data-view="analytics"><span class="nav-icon">⌁</span><span>客流分析</span></button>
+            </nav>
+            <div class="nav-label">系统维护</div>
+            <nav class="nav">
+                <button class="nav-btn" data-view="settings"><span class="nav-icon">⚙</span><span>运行配置</span></button>
+                <button class="nav-btn" data-view="diagnostics"><span class="nav-icon">＋</span><span>系统诊断</span></button>
+            </nav>
+            <div class="sidebar-bottom">
+                <div class="store">好邻居大药房 · 衢州</div>
+                <div class="store-sub">本地部署 · 交付版</div>
             </div>
-            <div class="notes" style="margin-top:12px;">
-              <div class="note"><strong>合规处理</strong><p>生成文案会过滤绝对化、治疗承诺和 Markdown 星号，避免被语音朗读成符号。</p></div>
-              <div class="note"><strong>触发策略</strong><p>顾客在分区停留超过 5 秒后触发，广告播放完成后进入 30 秒冷却。</p></div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h2 id="pageTitle">运营概览</h2>
+                    <p id="pageSubtitle">查看门店广播、客流与系统运行状态</p>
+                </div>
+                <div class="topbar-right">
+                    <div class="pill"><span class="dot"></span>静态演示运行中</div>
+                    <div class="pill" id="clock">--</div>
+                    <div class="pill">自动刷新 10 秒</div>
+                </div>
+            </header>
+
+            <div class="content"><div class="demo-ribbon">面试展示版：使用公开测试录像与模拟运营数据，不连接真实摄像头、数据库或生产 API。</div>
+                <section class="view active" id="overview">
+                    <div class="section-heading">
+                        <div>
+                            <h3>今日运营</h3>
+                            <p>把店长最需要看的数字、监控和异常状态放在首页。</p>
+                        </div>
+                        <button class="secondary-btn" onclick="loadHistory()">刷新数据</button>
+                    </div>
+                    <div class="grid kpis">
+                        <article class="card kpi">
+                            <div class="label"><span>今日到店</span><span class="delta">客流</span></div>
+                            <div class="value" id="visitorToday">-</div>
+                            <div class="meta">已按同一顾客去重统计</div>
+                        </article>
+                        <article class="card kpi blue">
+                            <div class="label"><span>今日播放</span><span class="delta">广播</span></div>
+                            <div class="value" id="todayCount">-</div>
+                            <div class="meta">当天已触发的播报次数</div>
+                        </article>
+                        <article class="card kpi">
+                            <div class="label"><span>成功播放</span><span class="delta">稳定性</span></div>
+                            <div class="value" id="successCount">-</div>
+                            <div class="meta">累计播放完成记录</div>
+                        </article>
+                        <article class="card kpi danger clickable-card" onclick="showFailedRecords()" role="button" tabindex="0">
+                            <div class="label"><span>播放失败</span><span class="tag fail">需关注</span></div>
+                            <div class="value" id="failedCount">-</div>
+                            <div class="meta">点击查看失败原因列表</div>
+                        </article>
+                    </div>
+
+                    <div class="grid dashboard-main">
+                        <article class="card camera-card">
+                            <div class="card-header">
+                                <div>
+                                    <h4>门店实时监控</h4>
+                                    <p>公开测试录像 · 分区识别 · 员工过滤</p>
+                                </div>
+                                <span class="live"><span class="dot"></span>DEMO</span>
+                            </div>
+                            <div class="camera-wrap">
+                                <video src="demo-video.mp4" poster="zone-preview.png" aria-label="公开测试录像" muted autoplay loop playsinline controls></video>
+                                <div class="camera-overlay">
+                                    <span class="overlay-chip" id="overviewSourceChip">读取视频源中</span>
+                                    <span class="overlay-chip">蓝框分区</span>
+                                    <span class="overlay-chip">绿框顾客</span>
+                                </div>
+                            </div>
+                            <div class="camera-footer">
+                                <div class="camera-stats">
+                                    <span>员工过滤已开启</span>
+                                    <span>脚部/遮挡锚点识别</span>
+                                    <span>冷却 30 秒</span>
+                                </div>
+                                <button class="secondary-btn" onclick="showView('monitor')">查看大画面</button>
+                            </div>
+                        </article>
+
+                        <article class="card health">
+                            <div class="chart-title">
+                                <div>
+                                    <h4>系统状态</h4>
+                                    <span>当前服务与硬件概览</span>
+                                </div>
+                            </div>
+                                <div class="health-list">
+                                    <div class="health-row"><span>摄像头/测试视频</span><b class="status-good" id="healthVideoSource">读取中</b></div>
+                                    <div class="health-row"><span>天气接口</span><b class="status-unknown" id="healthWeather">等待检测</b></div>
+                                    <div class="health-row"><span>语音播报</span><b class="status-unknown" id="healthTts">等待检测</b></div>
+                                    <div class="health-row"><span>累计广播</span><b class="status-good" id="totalCount">-</b></div>
+                                    <div class="health-row"><span>近 7 天到店</span><b class="status-good" id="visitorWeek">-</b></div>
+                                </div>
+                            <div class="notice">提示：录像和监控画面的切换放在“运行配置”中，适合测试时随时切换。</div>
+                        </article>
+                    </div>
+
+                    <div class="grid bottom-grid">
+                        <article class="card chart-card">
+                            <div class="chart-title">
+                                <div>
+                                    <h4>到店趋势</h4>
+                                    <span>当前接入统计：今日与近 7 天</span>
+                                </div>
+                            </div>
+                            <div class="bars">
+                                <div class="bar-group"><div class="bar" style="height: 34%"></div><div class="bar secondary" style="height: 18%"></div><span class="bar-label">周一</span></div>
+                                <div class="bar-group"><div class="bar" style="height: 46%"></div><div class="bar secondary" style="height: 28%"></div><span class="bar-label">周二</span></div>
+                                <div class="bar-group"><div class="bar" style="height: 52%"></div><div class="bar secondary" style="height: 36%"></div><span class="bar-label">周三</span></div>
+                                <div class="bar-group"><div class="bar" style="height: 60%"></div><div class="bar secondary" style="height: 44%"></div><span class="bar-label">周四</span></div>
+                                <div class="bar-group"><div class="bar" style="height: 72%"></div><div class="bar secondary" style="height: 50%"></div><span class="bar-label">周五</span></div>
+                                <div class="bar-group"><div class="bar" style="height: 66%"></div><div class="bar secondary" style="height: 42%"></div><span class="bar-label">周六</span></div>
+                                <div class="bar-group"><div class="bar" style="height: 48%"></div><div class="bar secondary" style="height: 32%"></div><span class="bar-label">周日</span></div>
+                            </div>
+                        </article>
+                        <article class="card chart-card">
+                            <div class="chart-title">
+                                <div>
+                                    <h4>重点分区</h4>
+                                    <span>按当前药店分区展示</span>
+                                </div>
+                            </div>
+                            <div class="rank-list">
+                                <div class="rank-row"><div class="rank-top"><span>感冒消炎区</span><b>高</b></div><div class="rank-track"><div class="rank-fill" style="width: 88%"></div></div></div>
+                                <div class="rank-row"><div class="rank-top"><span>保健品区</span><b>中高</b></div><div class="rank-track"><div class="rank-fill" style="width: 70%"></div></div></div>
+                                <div class="rank-row"><div class="rank-top"><span>膏药区</span><b>中</b></div><div class="rank-track"><div class="rank-fill" style="width: 54%"></div></div></div>
+                                <div class="rank-row"><div class="rank-top"><span>收银区</span><b>天气播报</b></div><div class="rank-track"><div class="rank-fill" style="width: 46%"></div></div></div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="view" id="monitor">
+                    <div class="section-heading">
+                        <div>
+                            <h3>实时监控</h3>
+                            <p>用于现场调试分区、顾客框和员工过滤效果。</p>
+                        </div>
+                        <button class="secondary-btn" onclick="loadConfig()">刷新视频源</button>
+                    </div>
+                    <div class="grid monitor-grid">
+                        <article class="card camera-card big-camera">
+                            <div class="card-header">
+                                <div>
+                                    <h4>监控画面</h4>
+                                    <p id="monitorSourceText">正在读取当前视频源</p>
+                                </div>
+                                <span class="live"><span class="dot"></span>DEMO</span>
+                            </div>
+                            <div class="camera-wrap"><video src="demo-video.mp4" poster="zone-preview.png" aria-label="公开测试录像" muted autoplay loop playsinline controls></video></div>
+                        </article>
+                        <div class="grid" style="align-content:start">
+                            <article class="card legend">
+                                <div class="chart-title">
+                                    <div>
+                                        <h4>识别图例</h4>
+                                        <span>现场人员可以直接对照画面</span>
+                                    </div>
+                                </div>
+                                <div class="legend-grid">
+                                    <div class="legend-item">蓝线：业务分区</div>
+                                    <div class="legend-item">绿框：顾客</div>
+                                    <div class="legend-item">青框：工作人员</div>
+                                    <div class="legend-item">红框：停留触发</div>
+                                </div>
+                            </article>
+                            <article class="card">
+                                <div class="card-header">
+                                    <div>
+                                        <h4>实时识别说明</h4>
+                                        <p>当前识别逻辑</p>
+                                    </div>
+                                </div>
+                                <div class="event-stream">
+                                    <div class="event"><time>锚点</time><span>无遮挡时优先按脚部位置判断所在分区</span></div>
+                                    <div class="event"><time>遮挡</time><span>货架后方只露上半身时，会向下推算落点</span></div>
+                                    <div class="event"><time>员工</time><span>浅蓝色大褂会进入工作人员过滤逻辑</span></div>
+                                    <div class="event"><time>入口</time><span>入口区只统计到店，不触发广告</span></div>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="view" id="history">
+                    <div class="section-heading">
+                        <div>
+                            <h3>广播记录</h3>
+                            <p>按日期、状态和时段查看已经生成或播放的文案。</p>
+                        </div>
+                        <button class="secondary-btn" onclick="loadHistory()">刷新记录</button>
+                    </div>
+                    <div class="filter-bar">
+                        <span class="filter-label">筛选</span>
+                        <select id="statusFilter" aria-label="播放状态">
+                            <option value="">全部状态</option>
+                            <option value="成功">成功</option>
+                            <option value="失败">失败</option>
+                        </select>
+                        <select id="periodFilter" aria-label="播放时段">
+                            <option value="">全部时段</option>
+                            <option value="早上">早上</option>
+                            <option value="中午">中午</option>
+                            <option value="下午">下午</option>
+                            <option value="晚上">晚上</option>
+                        </select>
+                        <input type="date" id="dateFilter" aria-label="选择日期">
+                        <button onclick="loadHistory()" class="btn">筛选</button>
+                        <button onclick="clearFilters()" class="btn btn-secondary">重置</button>
+                    </div>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-state"><div><div class="icon">...</div><div>正在加载记录</div></div></div>
+                    </div>
+                </section>
+
+                <section class="view" id="analytics">
+                    <div class="section-heading">
+                        <div>
+                            <h3>客流分析</h3>
+                            <p>当前先展示轻量趋势，后续可以继续接入更细的分时统计。</p>
+                        </div>
+                    </div>
+                    <div class="grid analytics-grid">
+                        <article class="card kpi">
+                            <div class="label"><span>今日到店</span><span class="delta">实时</span></div>
+                            <div class="value" id="visitorTodayAnalytics">-</div>
+                            <div class="meta">来自监控识别统计</div>
+                        </article>
+                        <article class="card kpi blue">
+                            <div class="label"><span>本周到店</span><span class="delta">7 天</span></div>
+                            <div class="value" id="visitorWeekAnalytics">-</div>
+                            <div class="meta">近 7 天累计到店人数</div>
+                        </article>
+                    </div>
+                    <article class="card table-card">
+                        <table>
+                            <thead><tr><th>识别策略</th><th>作用</th><th>当前状态</th></tr></thead>
+                            <tbody>
+                                <tr><td>同顾客去重</td><td>避免一段录像内反复增加到店人数</td><td><span class="tag success">已启用</span></td></tr>
+                                <tr><td>员工过滤</td><td>过滤浅蓝色工作服人员</td><td><span class="tag success">已启用</span></td></tr>
+                                <tr><td>遮挡锚点</td><td>货架后只露上半身时辅助判断分区</td><td><span class="tag success">已启用</span></td></tr>
+                            </tbody>
+                        </table>
+                    </article>
+                </section>
+
+                <section class="view" id="settings">
+                    <div class="section-heading">
+                        <div>
+                            <h3>运行配置</h3>
+                            <p>测试视频、监控源和识别性能参数集中在这里。</p>
+                        </div>
+                    </div>
+                    <div class="grid settings-layout">
+                        <article class="card settings-card">
+                            <h4>识别与性能</h4>
+                            <div class="form-row">
+                                <div>
+                                    <div class="form-title">运行设备</div>
+                                    <div class="form-help">GPU 需现场电脑支持 CUDA，默认使用 CPU。</div>
+                                </div>
+                                <div class="control-stack">
+                                    <select id="useGpu" class="field">
+                                        <option value="false">CPU（通用模式）</option>
+                                        <option value="true">GPU（独立显卡）</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div>
+                                    <div class="form-title">检测间隔</div>
+                                    <div class="form-help">数值越小越灵敏，也越占性能。</div>
+                                </div>
+                                <div class="control-stack input-with-unit">
+                                    <input type="number" id="detectionInterval" min="0.05" max="5" step="0.05" value="0.3">
+                                    <span class="unit">秒/帧</span>
+                                </div>
+                            </div>
+                            <div class="config-tip"><strong>建议：</strong>高性能电脑可设为 0.1-0.2 秒，老旧电脑建议 0.5-1.0 秒。</div>
+                            <button onclick="saveConfig()" class="btn btn-save">保存配置</button>
+                            <div id="configMsg" class="config-msg"></div>
+                        </article>
+
+                        <article class="card settings-card">
+                            <h4>视频与调试</h4>
+                            <div class="source-control">
+                                <div>
+                                    <div class="source-title">当前视频源</div>
+                                    <div class="source-status" id="videoSourceStatus">正在读取当前视频源</div>
+                                </div>
+                                <button onclick="toggleVideoSource()" id="sourceToggleBtn" class="btn btn-accent">切换视频源</button>
+                            </div>
+                            <div class="form-row" style="grid-template-columns: 1fr;">
+                                <div>
+                                    <div class="form-title">测试说明</div>
+                                    <div class="form-help">把测试录像放到应用文件夹后，这里可以在“测试录像”和“监控画面”之间切换。</div>
+                                </div>
+                            </div>
+                            <div class="form-row" style="grid-template-columns: 1fr;">
+                                <div>
+                                    <div class="form-title">页面刷新</div>
+                                    <div class="form-help">运营数据每 10 秒自动刷新一次，监控画面持续读取后台最新帧。</div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="view" id="diagnostics">
+                    <div class="section-heading">
+                        <div>
+                            <h3>系统诊断</h3>
+                            <p>用于快速判断系统当前是否真的可运行。</p>
+                        </div>
+                        <button class="secondary-btn" onclick="loadHealth()">刷新状态</button>
+                    </div>
+                    <article class="card">
+                        <div class="health-summary">
+                            <div>
+                                <h4 id="overallHealthText">正在读取系统状态</h4>
+                                <p id="healthCheckedAt">请稍候</p>
+                            </div>
+                            <span class="tag info" id="overallHealthBadge">检测中</span>
+                        </div>
+                    </article>
+                    <div class="grid diag-grid" id="healthModules">
+                        <article class="card diag"><div class="diag-top"><h4>系统状态</h4><span class="tag info">检测中</span></div><p>正在读取各模块状态。</p></article>
+                    </div>
+                    <article class="card">
+                        <div class="card-header">
+                            <div>
+                                <h4>最近一次错误</h4>
+                                <p>给现场人员看的简明原因</p>
+                            </div>
+                        </div>
+                        <div class="latest-error" id="latestHealthError">暂无错误记录</div>
+                    </article>
+                </section>
             </div>
-          </section>
-        </div>
-      </div>
+        </main>
+    </div>
 
-      <aside class="side">
-        <section class="panel">
-          <h2>硬件配置</h2>
-          <div class="config">
-            <div class="field"><label>运行设备</label><select><option>CPU（演示模式）</option><option>GPU（生产模式）</option></select></div>
-            <div class="field"><label>检测间隔</label><select><option>0.3 秒/帧</option><option>0.5 秒/帧</option><option>1.0 秒/帧</option></select></div>
-            <div class="source-box">
-              <div><div class="source-title">视频源</div><div class="source-status" id="sourceStatus">当前：测试录像 demo-video.mp4</div></div>
-              <button class="btn secondary" id="sourceBtn">切换</button>
-            </div>
-          </div>
-        </section>
+    <div class="toast" id="toast">操作成功</div>
 
-        <section class="panel">
-          <h2>项目亮点</h2>
-          <div class="notes">
-            <div class="note"><strong>多源输入</strong><p>支持实时 RTSP 监控和本地测试录像切换，便于门店落地和调试。</p></div>
-            <div class="note"><strong>视觉识别</strong><p>YOLO 检测人体后，按药柜多边形区域判断停留，并过滤浅蓝大褂工作人员。</p></div>
-            <div class="note"><strong>AI 广播</strong><p>结合天气、时段和药柜分类生成文案，通过 TTS 播放并压低背景音乐。</p></div>
-            <div class="note"><strong>运营闭环</strong><p>记录播放历史、客流统计、成功失败状态，后台可直接查看监控画面。</p></div>
-          </div>
-        </section>
-      </aside>
-    </section>
-  </main>
 
-  <script>
-    const video = document.getElementById('demoVideo');
-    const canvas = document.getElementById('zoneCanvas');
-    const ctx = canvas.getContext('2d');
-    const playBtn = document.getElementById('playBtn');
-    const zoneBtn = document.getElementById('zoneBtn');
-    const triggerBtn = document.getElementById('triggerBtn');
-    const sourceBtn = document.getElementById('sourceBtn');
-    const sourceStatus = document.getElementById('sourceStatus');
-    const historyList = document.getElementById('historyList');
-    const currentCopy = document.getElementById('currentCopy');
-    const copyTitle = document.getElementById('copyTitle');
+    <script>
+        const demoHistory = [
+            {timestamp:'2026-07-13 15:42:18', weather:'小雨', temp:25.2, period:'下午', holiday:'', voice:'zh-CN-YunxiNeural', status:'成功', content:'各位顾客朋友，下午好。雨天地面湿滑，请注意脚下安全。感冒消炎区近期咨询较多，如有需要可向店内药师咨询。'},
+            {timestamp:'2026-07-13 15:18:06', weather:'小雨', temp:25.2, period:'下午', holiday:'', voice:'zh-CN-XiaoxiaoNeural', status:'成功', content:'检测到顾客在保健品区停留。维生素及日常营养补充产品正在陈列，购买前请结合自身情况咨询专业药师。'},
+            {timestamp:'2026-07-13 14:55:31', weather:'小雨', temp:25.1, period:'下午', holiday:'', voice:'zh-CN-YunxiNeural', status:'失败', error_reason:'TTS 合成失败：语音服务连接超时', content:'膏药区商品介绍文案已生成，语音合成未完成。'},
+            {timestamp:'2026-07-13 14:26:43', weather:'阴', temp:25.0, period:'下午', holiday:'', voice:'zh-CN-XiaoyiNeural', status:'成功', content:'欢迎光临。收银台旁备有便民用品，门店药师可为您提供用药咨询。'},
+            {timestamp:'2026-07-13 11:36:20', weather:'阴', temp:24.7, period:'上午', holiday:'', voice:'zh-CN-XiaoxiaoNeural', status:'成功', content:'检测到顾客在医疗器械区停留，血压计、血糖仪等产品可咨询工作人员了解使用方法。'},
+            {timestamp:'2026-07-13 10:08:12', weather:'阴', temp:24.4, period:'上午', holiday:'', voice:'zh-CN-YunxiNeural', status:'失败', error_reason:'天气接口失败：请求超时', content:'天气关怀广播生成失败。'}
+        ];
+        const demoStats = {total:64, success:60, failed:4, today:13};
+        const demoVisitors = {today:9, week:24};
+        let demoConfig = {use_gpu:false, detection_interval:0.3, video_source:'video', video_available:true, video_file:'demo-video.mp4'};
+        const demoHealth = {
+            overall:'normal', overall_text:'演示系统运行正常', checked_at:'刚刚', latest_error:{time:'2026-07-13 14:55:31', module:'语音合成', reason:'演示记录：语音服务连接超时'},
+            modules:[
+                {key:'backend', name:'后台服务', status:'normal', status_text:'正常', message:'静态演示页面已加载'},
+                {key:'video', name:'摄像头或视频源', status:'normal', status_text:'正常', message:'公开测试录像可播放'},
+                {key:'model', name:'人体识别模型', status:'normal', status_text:'已加载', message:'演示识别结果已准备'},
+                {key:'weather', name:'天气接口', status:'normal', status_text:'正常', message:'演示天气数据可用'},
+                {key:'ai', name:'AI 文案接口', status:'normal', status_text:'正常', message:'演示文案数据可用'},
+                {key:'tts', name:'TTS', status:'normal', status_text:'正常', message:'演示语音模块状态正常'},
+                {key:'audio', name:'音频播放设备', status:'unknown', status_text:'待现场确认', message:'静态网页不访问面试官的音频设备'},
+                {key:'database', name:'数据库', status:'normal', status_text:'正常', message:'演示数据已加载'}
+            ]
+        };
 
-    let showZones = true;
-    let demoSource = 'video';
-    const zones = [
-      { name: '医疗器械', points: [[.04,.17],[.24,.16],[.29,.31],[.19,.39],[.03,.33]], label: [.15,.25], color: '#2f6bff' },
-      { name: '口罩棉签', points: [[.11,.39],[.34,.32],[.39,.43],[.20,.53],[.08,.47]], label: [.23,.43], color: '#ff9f1a' },
-      { name: '计生用品', points: [[.31,.12],[.51,.07],[.55,.20],[.39,.31],[.27,.24]], label: [.42,.18], color: '#16a66a' },
-      { name: '血糖血压', points: [[.53,.03],[.68,.03],[.68,.17],[.56,.24],[.50,.14]], label: [.60,.11], color: '#b85cff' },
-      { name: '补剂', points: [[.31,.32],[.68,.21],[.72,.43],[.42,.58],[.22,.47]], label: [.47,.39], color: '#2c92ff', active: true },
-      { name: '维生素', points: [[.20,.48],[.43,.43],[.45,.60],[.26,.68],[.15,.58]], label: [.30,.54], color: '#f0c92a' },
-      { name: '心脑血管', points: [[.00,.55],[.18,.49],[.28,1.00],[.00,1.00]], label: [.12,.72], color: '#e14c92' },
-      { name: '收银台', points: [[.53,.64],[.78,.54],[.83,1.00],[.50,1.00]], label: [.66,.80], color: '#00c7d8' },
-      { name: '入口区', points: [[.71,.07],[.90,.08],[.90,.46],[.76,.58],[.68,.38]], label: [.79,.28], color: '#ff4d3d' },
-      { name: '咳嗽感冒', points: [[.88,.32],[1.00,.38],[1.00,1.00],[.90,1.00],[.80,.64]], label: [.92,.66], color: '#35c875' }
-    ];
+        const nativeFetch = window.fetch.bind(window);
+        window.fetch = async function(input, options = {}) {
+            const raw = typeof input === 'string' ? input : input.url;
+            const url = new URL(raw, window.location.href);
+            let payload;
+            if (url.pathname === '/api/history') {
+                payload = demoHistory.filter(item => {
+                    const status = url.searchParams.get('status');
+                    const period = url.searchParams.get('period');
+                    const date = url.searchParams.get('date');
+                    return (!status || item.status === status) && (!period || item.period === period) && (!date || item.timestamp.startsWith(date));
+                });
+            } else if (url.pathname === '/api/stats') payload = demoStats;
+            else if (url.pathname === '/api/visitors') payload = demoVisitors;
+            else if (url.pathname === '/api/health') payload = demoHealth;
+            else if (url.pathname === '/api/config') {
+                if ((options.method || 'GET').toUpperCase() === 'POST') {
+                    const changes = JSON.parse(options.body || '{}');
+                    demoConfig = {...demoConfig, ...changes};
+                    payload = {...demoConfig, success:true, message:'演示配置已保存'};
+                } else payload = demoConfig;
+            } else return nativeFetch(input, options);
+            return new Response(JSON.stringify(payload), {status:200, headers:{'Content-Type':'application/json'}});
+        };
+    </script>
 
-    const histories = [
-      ['16:21:04', '补剂', '亲爱的顾客朋友，欢迎关注补剂区域。当前天气小雨，气温 25.2℃，建议您结合自身需要选择合适的健康用品。'],
-      ['16:18:32', '入口客流', '识别到新顾客进店，今日到店人数完成去重记录。'],
-      ['16:05:56', '血糖血压', '顾客在血糖血压测量区停留，系统触发健康测量相关广播。'],
-      ['15:58:11', '心脑血管', '结合阴雨天气，提醒顾客关注血压变化和日常健康管理。']
-    ];
+    <script>
+        const voiceNames = {
+            'zh-CN-XiaoxiaoNeural': '晓晓（活泼女声）',
+            'zh-CN-YunxiNeural': '云希（阳光男声）',
+            'zh-CN-XiaoyiNeural': '晓伊（温柔女声）'
+        };
+        const viewMeta = {
+            overview: ['运营概览', '查看门店广播、客流与系统运行状态'],
+            monitor: ['实时监控', '查看监控画面、分区和识别效果'],
+            history: ['广播记录', '查询每一次生成和播放的文案'],
+            analytics: ['客流分析', '查看到店统计与识别策略'],
+            settings: ['运行配置', '调整视频源和识别性能'],
+            diagnostics: ['系统诊断', '快速检查关键模块状态']
+        };
+        let currentVideoSource = 'camera';
 
-    function resizeCanvas() {
-      const rect = canvas.getBoundingClientRect();
-      const ratio = window.devicePixelRatio || 1;
-      canvas.width = Math.round(rect.width * ratio);
-      canvas.height = Math.round(rect.height * ratio);
-      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-      drawOverlay();
-    }
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
 
-    function drawLabel(text, x, y, color) {
-      ctx.font = '12px Microsoft YaHei, Arial';
-      const paddingX = 8;
-      const height = 25;
-      const width = ctx.measureText(text).width + paddingX * 2;
-      const left = Math.max(8, Math.min(canvas.clientWidth - width - 8, x - width / 2));
-      const top = Math.max(8, Math.min(canvas.clientHeight - height - 8, y - height / 2));
-      ctx.fillStyle = 'rgba(12, 20, 16, 0.78)';
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      if (ctx.roundRect) {
-        ctx.roundRect(left, top, width, height, 6);
-      } else {
-        ctx.rect(left, top, width, height);
-      }
-      ctx.fill();
-      ctx.stroke();
-      ctx.fillStyle = '#fff';
-      ctx.fillText(text, left + paddingX, top + 17);
-    }
+        function formatNumber(value) {
+            const number = Number(value || 0);
+            return Number.isFinite(number) ? number.toLocaleString('zh-CN') : '-';
+        }
 
-    function drawPolygon(zone, active) {
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight;
-      ctx.beginPath();
-      zone.points.forEach(([x, y], index) => {
-        const px = x * w;
-        const py = y * h;
-        index === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
-      });
-      ctx.closePath();
-      ctx.fillStyle = active ? 'rgba(255,77,61,0.16)' : 'rgba(255,255,255,0.045)';
-      ctx.fill();
-      ctx.strokeStyle = active ? '#ff4d3d' : zone.color;
-      ctx.lineWidth = active ? 2.6 : 1.7;
-      ctx.setLineDash(active ? [] : [6, 4]);
-      ctx.stroke();
-      ctx.setLineDash([]);
+        function statusUi(status) {
+            if (status === 'normal') return {tag: 'success', textClass: 'status-good'};
+            if (status === 'abnormal') return {tag: 'fail', textClass: 'status-bad'};
+            if (status === 'unconfigured') return {tag: 'info', textClass: 'status-warn'};
+            return {tag: 'info', textClass: 'status-unknown'};
+        }
 
-      const [labelX, labelY] = zone.label || [
-        zone.points.reduce((sum, p) => sum + p[0], 0) / zone.points.length,
-        zone.points.reduce((sum, p) => sum + p[1], 0) / zone.points.length
-      ];
-      drawLabel(zone.name, labelX * w, labelY * h, active ? '#ff4d3d' : zone.color);
-    }
+        function setStatusText(id, text, status) {
+            document.querySelectorAll(`#${id}`).forEach(el => {
+                el.textContent = text;
+                el.className = statusUi(status).textClass;
+            });
+        }
 
-    function drawOverlay() {
-      ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-      if (!showZones) return;
-      zones.forEach(zone => drawPolygon(zone, zone.active));
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight;
-      ctx.strokeStyle = '#20d87a';
-      ctx.lineWidth = 2.2;
-      ctx.strokeRect(w * .73, h * .25, w * .08, h * .38);
-      drawLabel('顾客', w * .77, h * .22, '#20d87a');
-      ctx.strokeStyle = '#45d8ff';
-      ctx.lineWidth = 2.2;
-      ctx.strokeRect(w * .86, h * .28, w * .07, h * .36);
-      drawLabel('staff', w * .895, h * .25, '#45d8ff');
-    }
+        function setText(id, value) {
+            document.querySelectorAll(`#${id}`).forEach(el => { el.textContent = value; });
+        }
 
-    function renderHistory() {
-      historyList.innerHTML = histories.map(([time, zone, text], index) => `
-        <article class="history-item">
-          <div class="history-top">
-            <span class="time">2026-07-01 ${time}</span>
-            <span class="tag ${zone === '入口客流' ? 'warn' : ''}">${zone}</span>
-          </div>
-          <p class="copy">${text}</p>
-          <div class="history-bottom">
-            <span class="time">播音员：云希</span>
-            <span class="tag">成功</span>
-          </div>
-        </article>
-      `).join('');
-    }
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 1800);
+        }
 
-    playBtn.addEventListener('click', () => {
-      if (video.paused) {
-        video.play();
-        playBtn.textContent = '暂停视频';
-      } else {
-        video.pause();
-        playBtn.textContent = '播放视频';
-      }
-    });
+        function showView(id) {
+            document.querySelectorAll('.view').forEach(view => view.classList.toggle('active', view.id === id));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.view === id));
+            const meta = viewMeta[id] || viewMeta.overview;
+            document.getElementById('pageTitle').textContent = meta[0];
+            document.getElementById('pageSubtitle').textContent = meta[1];
+            if (id === 'history') loadHistory();
+            if (id === 'settings' || id === 'monitor' || id === 'diagnostics') loadConfig();
+            if (id === 'diagnostics') loadHealth();
+        }
 
-    zoneBtn.addEventListener('click', () => {
-      showZones = !showZones;
-      zoneBtn.textContent = showZones ? '隐藏分区' : '显示分区';
-      drawOverlay();
-    });
+        function updateClock() {
+            const now = new Date();
+            const text = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).replaceAll('/', '-');
+            document.getElementById('clock').textContent = text;
+        }
 
-    triggerBtn.addEventListener('click', () => {
-      const text = '亲爱的顾客朋友，欢迎关注补剂区域。当前天气小雨，气温 25.2℃，建议您结合自身需要选择合适的健康用品。如需了解产品适用人群、使用方法或搭配建议，欢迎咨询店内专业药师。';
-      histories.unshift([new Date().toLocaleTimeString('zh-CN', { hour12: false }), '补剂', text]);
-      copyTitle.textContent = '补剂区域广告';
-      currentCopy.textContent = text;
-      document.getElementById('totalCount').textContent = String(Number(document.getElementById('totalCount').textContent) + 1);
-      document.getElementById('successCount').textContent = String(Number(document.getElementById('successCount').textContent) + 1);
-      document.getElementById('todayCount').textContent = String(Number(document.getElementById('todayCount').textContent) + 1);
-      renderHistory();
-    });
+        async function loadHistory() {
+            const status = document.getElementById('statusFilter')?.value || '';
+            const period = document.getElementById('periodFilter')?.value || '';
+            const date = document.getElementById('dateFilter')?.value || '';
+            const params = new URLSearchParams();
+            if (status) params.set('status', status);
+            if (period) params.set('period', period);
+            if (date) params.set('date', date);
+            const url = `/api/history?${params.toString()}`;
 
-    sourceBtn.addEventListener('click', () => {
-      demoSource = demoSource === 'video' ? 'camera' : 'video';
-      sourceStatus.textContent = demoSource === 'video'
-        ? '当前：测试录像 demo-video.mp4'
-        : '当前：监控画面 RTSP 演示占位';
-    });
+            try {
+                const [historyRes, statsRes, visitorRes] = await Promise.all([
+                    fetch(url),
+                    fetch('/api/stats'),
+                    fetch('/api/visitors')
+                ]);
 
-    window.addEventListener('resize', resizeCanvas);
-    video.addEventListener('loadedmetadata', resizeCanvas);
-    renderHistory();
-    resizeCanvas();
-    setInterval(drawOverlay, 1000);
-  </script>
+                const history = await historyRes.json();
+                const stats = await statsRes.json();
+                const visitors = await visitorRes.json();
+
+                setText('totalCount', formatNumber(stats.total));
+                setText('successCount', formatNumber(stats.success));
+                setText('failedCount', formatNumber(stats.failed));
+                setText('todayCount', formatNumber(stats.today));
+                setText('visitorToday', formatNumber(visitors.today));
+                setText('visitorWeek', formatNumber(visitors.week));
+                setText('visitorTodayAnalytics', formatNumber(visitors.today));
+                setText('visitorWeekAnalytics', formatNumber(visitors.week));
+
+                const list = document.getElementById('historyList');
+                if (!list) return;
+                if (!Array.isArray(history) || history.length === 0) {
+                    list.innerHTML = '<div class="empty-state"><div><div class="icon">暂无</div><div>当前筛选条件下没有广播记录</div></div></div>';
+                    return;
+                }
+
+                list.innerHTML = history.map(item => {
+                    const holiday = item.holiday ? `<span>节日：${escapeHtml(item.holiday)}</span>` : '';
+                    const isSuccess = item.status === '成功';
+                    const statusClass = isSuccess ? 'status-success' : 'status-failed';
+                    const statusLabel = isSuccess ? '成功' : '失败';
+                    const errorReason = !isSuccess && item.error_reason
+                        ? `<div class="error-reason"><strong>失败原因：</strong>${escapeHtml(item.error_reason)}</div>`
+                        : '';
+                    return `<article class="history-item">
+                        <div class="item-header">
+                            <span class="item-time">${escapeHtml(item.timestamp)}</span>
+                            <div class="item-meta">
+                                <span>天气：${escapeHtml(item.weather)} ${escapeHtml(item.temp)}°C</span>
+                                <span>时段：${escapeHtml(item.period)}</span>
+                                ${holiday}
+                            </div>
+                        </div>
+                        <div class="item-content">${escapeHtml(item.content)}</div>
+                        ${errorReason}
+                        <div class="item-footer">
+                            <span class="voice-tag">播音员：${escapeHtml(voiceNames[item.voice] || item.voice)}</span>
+                            <span class="status-badge ${statusClass}">${statusLabel}</span>
+                        </div>
+                    </article>`;
+                }).join('');
+            } catch (e) {
+                console.error(e);
+                const list = document.getElementById('historyList');
+                if (list) {
+                    list.innerHTML = '<div class="empty-state"><div><div class="icon">异常</div><div>记录加载失败，请稍后刷新</div></div></div>';
+                }
+            }
+        }
+
+        async function loadHealth() {
+            try {
+                const res = await fetch('/api/health');
+                const health = await res.json();
+                const overallUi = statusUi(health.overall);
+                const badge = document.getElementById('overallHealthBadge');
+                document.getElementById('overallHealthText').textContent = health.overall_text || '系统状态待确认';
+                document.getElementById('healthCheckedAt').textContent = `最近检测：${health.checked_at || '-'}`;
+                badge.className = `tag ${overallUi.tag}`;
+                badge.textContent = health.overall === 'normal' ? '正常' : (health.overall === 'abnormal' ? '异常' : '待确认');
+
+                const modules = Array.isArray(health.modules) ? health.modules : [];
+                const moduleMap = {};
+                modules.forEach(module => { moduleMap[module.key] = module; });
+                if (moduleMap.video) setStatusText('healthVideoSource', moduleMap.video.status_text, moduleMap.video.status);
+                if (moduleMap.weather) setStatusText('healthWeather', moduleMap.weather.status_text, moduleMap.weather.status);
+                if (moduleMap.tts) setStatusText('healthTts', moduleMap.tts.status_text, moduleMap.tts.status);
+
+                const container = document.getElementById('healthModules');
+                if (container) {
+                    container.innerHTML = modules.map(module => {
+                        const ui = statusUi(module.status);
+                        const detail = module.status !== 'normal' && module.last_error_reason
+                            ? `<br><span style="color: var(--danger)">最近错误：${escapeHtml(module.last_error_reason)}</span>`
+                            : '';
+                        return `<article class="card diag ${module.status === 'abnormal' ? 'abnormal' : (module.status === 'unknown' || module.status === 'unconfigured' ? 'unknown' : '')}">
+                            <div class="diag-top">
+                                <h4>${escapeHtml(module.name)}</h4>
+                                <span class="tag ${ui.tag}">${escapeHtml(module.status_text)}</span>
+                            </div>
+                            <p>${escapeHtml(module.message)}${detail}</p>
+                        </article>`;
+                    }).join('');
+                }
+
+                const latest = health.latest_error || {};
+                document.getElementById('latestHealthError').textContent = latest.time
+                    ? `${latest.time} · ${latest.module} · ${latest.reason}`
+                    : (latest.reason || '暂无错误记录');
+            } catch (e) {
+                console.error('健康状态加载失败:', e);
+                const latest = document.getElementById('latestHealthError');
+                if (latest) latest.textContent = '健康状态读取失败，请确认后台服务是否正常。';
+            }
+        }
+
+        function clearFilters() {
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('periodFilter').value = '';
+            document.getElementById('dateFilter').value = '';
+            loadHistory();
+        }
+
+        function showFailedRecords() {
+            showView('history');
+            setTimeout(() => {
+                const statusFilter = document.getElementById('statusFilter');
+                if (statusFilter) statusFilter.value = '失败';
+                loadHistory();
+            }, 0);
+        }
+
+        function applyVideoSourceState(cfg) {
+            currentVideoSource = cfg.video_source || 'camera';
+            const isVideo = currentVideoSource === 'video';
+            const fileText = cfg.video_available ? `测试录像：${cfg.video_file}` : '未找到测试录像';
+            const statusText = isVideo ? `当前：测试录像，${fileText}` : `当前：监控画面，${fileText}`;
+            const shortText = isVideo ? '测试录像' : '监控画面';
+            setText('videoSourceStatus', statusText);
+            setText('monitorSourceText', statusText);
+            setText('overviewSourceChip', shortText);
+            setText('healthVideoSource', shortText);
+            setText('diagVideo', statusText);
+            const btn = document.getElementById('sourceToggleBtn');
+            if (btn) {
+                btn.textContent = isVideo ? '切换到监控画面' : '切换到测试录像';
+                btn.disabled = !isVideo && !cfg.video_available;
+                btn.title = btn.disabled ? '请先把测试录像放到应用文件夹' : '';
+            }
+        }
+
+        async function toggleVideoSource() {
+            const nextSource = currentVideoSource === 'video' ? 'camera' : 'video';
+            const msgEl = document.getElementById('configMsg');
+            if (msgEl) msgEl.style.display = '';
+            try {
+                const res = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({video_source: nextSource})
+                });
+                const result = await res.json();
+                if (result.success) {
+                    applyVideoSourceState(result);
+                    if (msgEl) {
+                        msgEl.className = 'config-msg success';
+                        msgEl.textContent = nextSource === 'video' ? '已切换到测试录像' : '已切换到监控画面';
+                    }
+                    showToast(nextSource === 'video' ? '已切换到测试录像' : '已切换到监控画面');
+                } else if (msgEl) {
+                    msgEl.className = 'config-msg error';
+                    msgEl.textContent = result.error || '切换失败';
+                }
+                if (msgEl) setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+            } catch (e) {
+                if (msgEl) {
+                    msgEl.className = 'config-msg error';
+                    msgEl.textContent = '切换失败: ' + e;
+                }
+            }
+        }
+
+        async function loadConfig() {
+            try {
+                const res = await fetch('/api/config');
+                const cfg = await res.json();
+                const useGpu = document.getElementById('useGpu');
+                const detectionInterval = document.getElementById('detectionInterval');
+                if (useGpu) useGpu.value = cfg.use_gpu.toString();
+                if (detectionInterval) detectionInterval.value = cfg.detection_interval.toString();
+                applyVideoSourceState(cfg);
+            } catch (e) {
+                console.error('配置加载失败:', e);
+            }
+        }
+
+        async function saveConfig() {
+            const use_gpu = document.getElementById('useGpu').value === 'true';
+            const detection_interval = parseFloat(document.getElementById('detectionInterval').value);
+            const msgEl = document.getElementById('configMsg');
+            if (msgEl) msgEl.style.display = '';
+
+            try {
+                const res = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({use_gpu, detection_interval})
+                });
+                const result = await res.json();
+                if (result.success) {
+                    if (msgEl) {
+                        msgEl.className = 'config-msg success';
+                        msgEl.textContent = result.message || '配置已保存';
+                    }
+                    showToast('配置已保存');
+                } else if (msgEl) {
+                    msgEl.className = 'config-msg error';
+                    msgEl.textContent = result.error || '保存失败';
+                }
+                if (msgEl) setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+            } catch (e) {
+                if (msgEl) {
+                    msgEl.className = 'config-msg error';
+                    msgEl.textContent = '保存失败: ' + e;
+                }
+            }
+        }
+
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => showView(btn.dataset.view));
+        });
+        updateClock();
+        setInterval(updateClock, 30000);
+        loadConfig();
+        loadHealth();
+        loadHistory();
+        setInterval(loadHistory, 10000);
+        setInterval(loadHealth, 10000);
+    </script>
 </body>
 </html>
