@@ -499,6 +499,50 @@
         .event time { color: var(--muted); }
 
         .analytics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 16px; }
+        .conversion-layout { grid-template-columns: minmax(300px, 0.85fr) minmax(0, 1.35fr); margin-bottom: 16px; }
+        .conversion-card { padding: 20px; }
+        .conversion-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .conversion-top h4 { margin: 0; font-size: 16px; }
+        .conversion-top p { margin: 5px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+        .conversion-rate {
+            margin-bottom: 16px;
+            font-size: 36px;
+            line-height: 1;
+            font-weight: 800;
+            color: var(--primary-dark);
+        }
+        .conversion-rate.pending { color: var(--muted); font-size: 28px; }
+        .metric-list { display: grid; gap: 9px; }
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 11px 12px;
+            border: 1px solid #e6ecea;
+            border-radius: 8px;
+            background: #f8fafa;
+            font-size: 13px;
+        }
+        .metric-row span { color: var(--muted); }
+        .metric-row b { color: var(--text); }
+        .conversion-note {
+            margin-top: 12px;
+            padding: 11px 12px;
+            border-radius: 8px;
+            background: var(--blue-soft);
+            color: var(--blue);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .staff-table-wrap { overflow: auto; }
+        .staff-table { min-width: 620px; }
+        .value-pending { color: var(--muted); font-weight: 800; }
         .table-card { overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 13px 14px; border-bottom: 1px solid #edf1f0; text-align: left; font-size: 12px; vertical-align: middle; }
@@ -574,6 +618,35 @@
         .diag-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
         .diag h4 { margin: 0; font-size: 14px; }
         .diag p { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+        .zone-editor-layout { grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.65fr); align-items: start; }
+        .zone-editor-stage {
+            position: relative;
+            background: #10262b;
+            aspect-ratio: 16 / 9;
+            overflow: hidden;
+            border-radius: 0 0 8px 8px;
+            touch-action: none;
+        }
+        .zone-editor-stage img { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .zone-overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
+        .zone-polygon { fill: rgba(23,107,77,0.17); stroke: #2c67a5; stroke-width: 3; cursor: pointer; }
+        .zone-polygon.active { fill: rgba(22,132,87,0.3); stroke: #ffb020; stroke-width: 4; }
+        .zone-handle { fill: #ffb020; stroke: #102126; stroke-width: 2; cursor: grab; }
+        .zone-handle:active { cursor: grabbing; }
+        .zone-label { fill: #fff; font-size: 24px; font-weight: 800; paint-order: stroke; stroke: #102126; stroke-width: 4px; pointer-events: none; }
+        .zone-list { display: grid; gap: 8px; padding: 16px 18px 18px; max-height: 600px; overflow: auto; }
+        .zone-list button {
+            min-height: 38px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--text);
+            text-align: left;
+            padding: 0 12px;
+            font-weight: 700;
+        }
+        .zone-list button.active { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-dark); }
+        .zone-editor-tip { padding: 14px 18px 18px; color: var(--muted); font-size: 12px; line-height: 1.7; }
         .logs {
             padding: 14px 16px;
             background: #102126;
@@ -606,7 +679,7 @@
             .brand h1, .brand p, .nav-btn span:not(.nav-icon), .nav-label, .sidebar-bottom { display: none; }
             .brand { justify-content: center; padding-inline: 0; }
             .nav-btn { justify-content: center; }
-            .dashboard-main, .bottom-grid, .monitor-grid, .settings-layout { grid-template-columns: 1fr; }
+            .dashboard-main, .bottom-grid, .monitor-grid, .settings-layout, .conversion-layout { grid-template-columns: 1fr; }
             .kpis { grid-template-columns: repeat(2, 1fr); }
             .diag-grid { grid-template-columns: repeat(2, 1fr); }
         }
@@ -619,7 +692,7 @@
             .topbar { height: auto; padding: 16px; align-items: flex-start; flex-direction: column; }
             .topbar-right .pill:not(:first-child) { display: none; }
             .content { padding: 16px; }
-            .kpis, .analytics-grid, .diag-grid { grid-template-columns: 1fr; }
+            .kpis, .analytics-grid, .diag-grid, .conversion-layout { grid-template-columns: 1fr; }
             .form-row { grid-template-columns: 1fr; gap: 10px; }
             .table-card { overflow: auto; }
             table { min-width: 720px; }
@@ -674,6 +747,7 @@
             <div class="nav-label">系统维护</div>
             <nav class="nav">
                 <button class="nav-btn" data-view="settings"><span class="nav-icon">⚙</span><span>运行配置</span></button>
+                <button class="nav-btn" data-view="zones"><span class="nav-icon">◇</span><span>区域校准</span></button>
                 <button class="nav-btn" data-view="diagnostics"><span class="nav-icon">＋</span><span>系统诊断</span></button>
             </nav>
             <div class="sidebar-bottom">
@@ -740,7 +814,7 @@
                                 <video src="demo-video.mp4?v=qq-recording-20260713-140248" poster="zone-preview.png" aria-label="公开测试录像" muted autoplay loop playsinline controls></video>
                                 <div class="camera-overlay">
                                     <span class="overlay-chip" id="overviewSourceChip">读取视频源中</span>
-                                    <span class="overlay-chip">蓝框分区</span>
+                                    <span class="overlay-chip">红框高亮有人区域</span>
                                     <span class="overlay-chip">绿框顾客</span>
                                 </div>
                             </div>
@@ -835,10 +909,10 @@
                                     </div>
                                 </div>
                                 <div class="legend-grid">
-                                    <div class="legend-item">蓝线：业务分区</div>
+                                    <div class="legend-item">红线：当前有人区域</div>
                                     <div class="legend-item">绿框：顾客</div>
                                     <div class="legend-item">青框：工作人员</div>
-                                    <div class="legend-item">红框：停留触发</div>
+                                    <div class="legend-item">完整分区请到区域校准查看</div>
                                 </div>
                             </article>
                             <article class="card">
@@ -907,6 +981,39 @@
                             <div class="label"><span>本周到店</span><span class="delta">7 天</span></div>
                             <div class="value" id="visitorWeekAnalytics">-</div>
                             <div class="meta">近 7 天累计到店人数</div>
+                        </article>
+                    </div>
+                    <div class="grid conversion-layout">
+                        <article class="card conversion-card">
+                            <div class="conversion-top">
+                                <div>
+                                    <h4>整体进店转化率</h4>
+                                    <p>按今日到店人数与门店成交单数计算。</p>
+                                </div>
+                                <span class="tag info" id="conversionSourceStatus">待接入</span>
+                            </div>
+                            <div class="conversion-rate pending" id="overallConversionRate">待接入</div>
+                            <div class="metric-list">
+                                <div class="metric-row"><span>今日到店</span><b id="overallConversionVisitors">-</b></div>
+                                <div class="metric-row"><span>成交单数</span><b id="overallConversionOrders">待接入</b></div>
+                            </div>
+                            <div class="conversion-note" id="conversionDataNote">成交数据接口待接入，接入后自动计算整体转化率。</div>
+                        </article>
+                        <article class="card conversion-card">
+                            <div class="conversion-top">
+                                <div>
+                                    <h4>店员进店转化率</h4>
+                                    <p>两名店员按各自上班时段客流与成交单数计算。</p>
+                                </div>
+                            </div>
+                            <div class="staff-table-wrap">
+                                <table class="staff-table">
+                                    <thead><tr><th>店员</th><th>上班时段</th><th>时段进店</th><th>成交单数</th><th>转化率</th><th>状态</th></tr></thead>
+                                    <tbody id="staffConversionRows">
+                                        <tr><td colspan="6">正在加载转化率数据</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </article>
                     </div>
                     <article class="card table-card">
@@ -983,6 +1090,49 @@
                     </div>
                 </section>
 
+                <section class="view" id="zones">
+                    <div class="section-heading">
+                        <div>
+                            <h3>区域校准</h3>
+                            <p>点击左侧区域名，再拖动画面里的黄色角点调整识别范围。</p>
+                        </div>
+                        <div class="control-stack">
+                            <button class="secondary-btn" onclick="loadZones()">刷新区域</button>
+                            <button class="secondary-btn" onclick="resetZones()">恢复默认</button>
+                            <button class="primary-btn" onclick="saveZones()">保存区域</button>
+                        </div>
+                    </div>
+                    <div class="grid zone-editor-layout">
+                        <article class="card camera-card">
+                            <div class="card-header">
+                                <div>
+                                    <h4>监控区域编辑</h4>
+                                    <p id="zoneEditorStatus">正在读取区域配置</p>
+                                </div>
+                                <span class="tag info" id="selectedZoneName">未选择</span>
+                            </div>
+                            <div class="zone-editor-stage" id="zoneEditorStage">
+                                <img src="calibration-bg.jpg" alt="区域校准演示画面">
+                                <svg class="zone-overlay" id="zoneOverlay" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
+                            </div>
+                            <div class="zone-editor-tip">
+                                操作提示：拖动黄色角点即可改变区域边界；保存后会立即写入配置，并用于后续识别。若拖错了，可以点击“恢复默认”。
+                            </div>
+                        </article>
+                        <article class="card">
+                            <div class="card-header">
+                                <div>
+                                    <h4>识别区域</h4>
+                                    <p>选择要调整的药柜或门店区域</p>
+                                </div>
+                            </div>
+                            <div class="zone-list" id="zoneList">
+                                <div class="empty-state"><div><div class="icon">...</div><div>正在加载区域</div></div></div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
                 <section class="view" id="diagnostics">
                     <div class="section-heading">
                         <div>
@@ -1021,16 +1171,12 @@
 
 
     <script>
-        const demoHistory = [
-            {timestamp:'2026-07-13 15:42:18', weather:'小雨', temp:25.2, period:'下午', holiday:'', voice:'zh-CN-YunxiNeural', status:'成功', content:'各位顾客朋友，下午好。雨天地面湿滑，请注意脚下安全。感冒消炎区近期咨询较多，如有需要可向店内药师咨询。'},
-            {timestamp:'2026-07-13 15:18:06', weather:'小雨', temp:25.2, period:'下午', holiday:'', voice:'zh-CN-XiaoxiaoNeural', status:'成功', content:'检测到顾客在保健品区停留。维生素及日常营养补充产品正在陈列，购买前请结合自身情况咨询专业药师。'},
-            {timestamp:'2026-07-13 14:55:31', weather:'小雨', temp:25.1, period:'下午', holiday:'', voice:'zh-CN-YunxiNeural', status:'失败', error_reason:'TTS 合成失败：语音服务连接超时', content:'膏药区商品介绍文案已生成，语音合成未完成。'},
-            {timestamp:'2026-07-13 14:26:43', weather:'阴', temp:25.0, period:'下午', holiday:'', voice:'zh-CN-XiaoyiNeural', status:'成功', content:'欢迎光临。收银台旁备有便民用品，门店药师可为您提供用药咨询。'},
-            {timestamp:'2026-07-13 11:36:20', weather:'阴', temp:24.7, period:'上午', holiday:'', voice:'zh-CN-XiaoxiaoNeural', status:'成功', content:'检测到顾客在医疗器械区停留，血压计、血糖仪等产品可咨询工作人员了解使用方法。'},
-            {timestamp:'2026-07-13 10:08:12', weather:'阴', temp:24.4, period:'上午', holiday:'', voice:'zh-CN-YunxiNeural', status:'失败', error_reason:'天气接口失败：请求超时', content:'天气关怀广播生成失败。'}
-        ];
-        const demoStats = {total:64, success:60, failed:4, today:13};
-        const demoVisitors = {today:9, week:24};
+        const demoHistory = [{"timestamp": "2026-07-13 15:19:20", "period": "下午", "weather": "多云", "temp": 29.0, "holiday": "", "content": "亲爱的顾客朋友，欢迎关注感冒消炎区区域。当前天气多云，气温29.0℃，建议您结合自身需要选择合适的健康用品。如需了解产品适用人群、使用方法或搭配建议，欢迎咨询店内专业药师，我们会为您提供细致、稳妥的用药和健康管理建议。", "voice": "zh-CN-YunxiNeural", "status": "成功", "error_reason": null}, {"timestamp": "2026-07-13 15:18:04", "period": "下午", "weather": "多云", "temp": 29.0, "holiday": "", "content": "各位好邻居，下午好。现在室外多云，气温29度，体感略显闷热，空气湿度较大，这样的天气容易让人感到疲倦、食欲不振，也易诱发皮肤敏感或关节酸胀不适。 请大家注意适时补充水分，避免长时间在潮湿环境中停留。今天特别推荐几款适合此时节使用的健康好物：一是天然草本驱蚊喷雾，温和配方能有效预防蚊虫叮咬，特别适合午后外出或家中通风时使用；二是薏仁茯苓茶饮，帮助身体祛湿清热，缓解闷热带来的乏力感；三是医用级透气防潮贴，贴于易出汗部位，能保持皮肤干爽，减少湿疹风险。 以上均为日常护理用品，具体使用请根据个人情况。提醒您：选购任何药品前，请务必咨询我们店内的专业执业药师。愿您舒心度过这个午后，健康常伴左右。", "voice": "zh-CN-YunxiNeural", "status": "成功", "error_reason": null}, {"timestamp": "2026-07-13 15:16:40", "period": "下午", "weather": "晴", "temp": 25.0, "holiday": "", "content": "系统广播", "voice": "zh-CN-YunxiNeural", "status": "失败", "error_reason": "摄像头或视频源不可用：后台暂无可用画面帧"}, {"timestamp": "2026-07-13 14:59:52", "period": "下午", "weather": "晴", "temp": 25.0, "holiday": "", "content": "系统广播", "voice": "zh-CN-YunxiNeural", "status": "失败", "error_reason": "摄像头或视频源不可用：后台暂无可用画面帧"}, {"timestamp": "2026-07-13 00:41:48", "period": "晚上", "weather": "晴", "temp": 25.0, "holiday": "", "content": "亲爱的顾客朋友，欢迎关注感冒消炎区区域。当前天气小雨，气温25.5℃，建议您结合自身需要选择合适的健康用品。如需了解产品适用人群、使用方法或搭配建议，欢迎咨询店内专业药师，我们会为您提供细致、稳妥的用药和健康管理建议。", "voice": "zh-CN-XiaoyiNeural", "status": "成功", "error_reason": null}, {"timestamp": "2026-07-13 00:40:41", "period": "晚上", "weather": "晴", "temp": 25.0, "holiday": "", "content": "亲爱的顾客朋友，欢迎关注感冒消炎区区域。当前天气小雨，气温25.5℃，建议您结合自身需要选择合适的健康用品。如需了解产品适用人群、使用方法或搭配建议，欢迎咨询店内专业药师，我们会为您提供细致、稳妥的用药和健康管理建议。", "voice": "zh-CN-XiaoyiNeural", "status": "成功", "error_reason": null}, {"timestamp": "2026-07-13 00:37:48", "period": "晚上", "weather": "小雨", "temp": 25.5, "holiday": "", "content": "各位顾客朋友，晚上好。感谢您在这个微凉的雨夜光临好邻居大药房。窗外细雨绵绵，气温25.5℃，体感带着湿润的凉意，这样的天气容易让人关节酸胀、呼吸不畅，也容易因温差变化引发感冒。 我们温馨提醒您：睡前可适当用温水泡脚，促进血液循环；若感觉肩颈或膝盖不适，请避免长时间吹风。针对当前气候，我们特别推荐三款健康好物：一是透气型护膝，能温和支撑关节、防寒防潮；二是鼻腔护理喷雾，帮助清洁湿润鼻腔，缓解因湿度变化引起的鼻塞；三是复合维生素C泡腾片，辅助增强身体抵抗力。以上均为日常保健用品，请放心选购。 最后提醒您：用药前请务必咨询我们店内的专业执业药师。愿您今夜好眠，身体安康。", "voice": "zh-CN-XiaoyiNeural", "status": "成功", "error_reason": null}, {"timestamp": "2026-07-13 00:37:48", "period": "晚上", "weather": "小雨", "temp": 25.5, "holiday": "", "content": "各位亲爱的顾客朋友，晚上好。此刻窗外细雨绵绵，气温25.5℃，体感略显微凉潮湿。这样的天气，关节旧伤容易发酸发胀，呼吸道也易受湿气刺激。我们建议您随身备好透气型膝盖护具，能适度保暖减压；鼻腔喷雾器（生理性盐水型）可温和清洁湿润鼻腔，缓解不适；还有便携式除湿袋，放在衣柜或鞋柜里能有效防潮。请注意，以上均为日常保健用品，非处方药。若您有用药需求，请务必咨询我们店内的专业执业药师。愿这份雨夜的守护，伴您一夜安眠。", "voice": "zh-CN-XiaoyiNeural", "status": "成功", "error_reason": null}];
+        const demoStats = {"total": 130, "success": 81, "failed": 49, "today": 49};
+        const demoVisitors = {"today": 9, "week": 24};
+        const demoConversions = {"source_status": "ready", "source_message": "面试演示数据：成交单数用于展示转化率看板。", "overall": {"visitors": 9, "orders": 4, "conversion_rate": 44.4}, "staff": [{"name": "店员 A", "shift": "08:00-15:00", "visitors": 5, "orders": 3, "conversion_rate": 60.0, "status": "ready", "status_text": "已接入"}, {"name": "店员 B", "shift": "15:00-22:00", "visitors": 4, "orders": 1, "conversion_rate": 25.0, "status": "ready", "status_text": "已接入"}]};
+        const demoDefaultZones = {"ginseng": {"name": "参茸区", "points": [[0.04, 0.19], [0.2, 0.04], [0.21, 0.16], [0.08, 0.26]]}, "medical_equipment": {"name": "医疗器械区", "points": [[0.08, 0.26], [0.21, 0.16], [0.24, 0.24], [0.15, 0.33], [0.1, 0.49]]}, "mask_swab": {"name": "口罩棉签区", "points": [[0.14, 0.29], [0.24, 0.24], [0.3, 0.36], [0.24, 0.42], [0.27, 0.74], [0.24, 0.81], [0.16, 0.4]]}, "cardiovascular": {"name": "心脑血管区", "points": [[0.0, 0.27], [0.04, 0.19], [0.1, 0.49], [0.24, 0.81], [0.27, 0.74], [0.16, 0.4], [0.14, 0.29], [0.04, 0.38], [0.0, 0.38]]}, "plaster": {"name": "膏药区", "points": [[0.24, 0.24], [0.44, 0.12], [0.45, 0.14], [0.46, 0.3], [0.29, 0.37]]}, "family_planning": {"name": "计生用品区", "points": [[0.39, 0.07], [0.46, 0.01], [0.55, 0.14], [0.55, 0.24], [0.46, 0.3], [0.45, 0.14], [0.39, 0.12]]}, "glucose_bp": {"name": "血糖血压测量区", "points": [[0.56, 0.0], [0.73, 0.0], [0.72, 0.14], [0.67, 0.16], [0.57, 0.17], [0.55, 0.13]]}, "entrance": {"name": "入口区", "points": [[0.72, 0.01], [0.73, 0.01], [0.88, 0.07], [0.86, 0.4], [0.72, 0.45], [0.68, 0.44], [0.72, 0.33]]}, "health_products": {"name": "保健品区", "points": [[0.24, 0.41], [0.35, 0.36], [0.56, 0.3], [0.66, 0.16], [0.66, 0.43], [0.6, 0.57], [0.43, 0.83], [0.35, 0.84], [0.32, 0.48], [0.37, 0.48], [0.35, 0.41]]}, "cold_anti_inflammatory": {"name": "感冒消炎区", "points": [[0.66, 0.43], [0.82, 0.36], [0.79, 0.55], [0.7, 0.57], [0.67, 0.62], [0.6, 0.57]]}, "cashier": {"name": "收银区", "points": [[0.43, 0.83], [0.6, 0.57], [0.68, 0.62], [0.52, 0.83], [0.51, 0.98]]}, "digestive": {"name": "消化区", "points": [[0.3, 0.89], [0.37, 0.99], [0.51, 0.98], [0.52, 0.83], [0.43, 0.83], [0.35, 0.84]]}};
+        let demoZones = JSON.parse(JSON.stringify(demoDefaultZones));
         let demoConfig = {use_gpu:false, detection_interval:0.3, video_source:'video', video_available:true, video_file:'demo-video.mp4'};
         const demoHealth = {
             overall:'normal', overall_text:'演示系统运行正常', checked_at:'刚刚', latest_error:{time:'2026-07-13 14:55:31', module:'语音合成', reason:'演示记录：语音服务连接超时'},
@@ -1060,7 +1206,18 @@
                 });
             } else if (url.pathname === '/api/stats') payload = demoStats;
             else if (url.pathname === '/api/visitors') payload = demoVisitors;
+            else if (url.pathname === '/api/conversions') payload = demoConversions;
             else if (url.pathname === '/api/health') payload = demoHealth;
+            else if (url.pathname === '/api/zones/reset') {
+                demoZones = JSON.parse(JSON.stringify(demoDefaultZones));
+                payload = {success:true, zones:demoZones, message:'已恢复默认识别区域（演示）'};
+            } else if (url.pathname === '/api/zones') {
+                if ((options.method || 'GET').toUpperCase() === 'POST') {
+                    const changes = JSON.parse(options.body || '{}');
+                    demoZones = changes.zones || demoZones;
+                    payload = {success:true, zones:demoZones, message:'识别区域已保存（演示）'};
+                } else payload = {zones:demoZones};
+            }
             else if (url.pathname === '/api/config') {
                 if ((options.method || 'GET').toUpperCase() === 'POST') {
                     const changes = JSON.parse(options.body || '{}');
@@ -1084,9 +1241,13 @@
             history: ['广播记录', '查询每一次生成和播放的文案'],
             analytics: ['客流分析', '查看到店统计与识别策略'],
             settings: ['运行配置', '调整视频源和识别性能'],
+            zones: ['区域校准', '拖动角点调整每个识别区域'],
             diagnostics: ['系统诊断', '快速检查关键模块状态']
         };
         let currentVideoSource = 'camera';
+        let zonesData = {};
+        let selectedZoneKey = '';
+        let draggingPoint = null;
 
         function escapeHtml(value) {
             return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -1101,6 +1262,17 @@
         function formatNumber(value) {
             const number = Number(value || 0);
             return Number.isFinite(number) ? number.toLocaleString('zh-CN') : '-';
+        }
+
+        function formatOptionalNumber(value, fallback = '待接入') {
+            if (value === null || value === undefined || value === '') return fallback;
+            return formatNumber(value);
+        }
+
+        function formatPercent(value, fallback = '待接入') {
+            if (value === null || value === undefined || value === '') return fallback;
+            const number = Number(value);
+            return Number.isFinite(number) ? `${number.toFixed(1)}%` : fallback;
         }
 
         function statusUi(status) {
@@ -1128,6 +1300,59 @@
             setTimeout(() => toast.classList.remove('show'), 1800);
         }
 
+        function renderConversions(data) {
+            const overall = data?.overall || {};
+            const sourceStatus = data?.source_status || 'pending';
+            const sourceMessage = data?.source_message || '成交数据接口待接入';
+            const sourceTag = document.getElementById('conversionSourceStatus');
+            if (sourceTag) {
+                sourceTag.className = `tag ${sourceStatus === 'ready' ? 'success' : 'info'}`;
+                sourceTag.textContent = sourceStatus === 'ready' ? '已接入' : '待接入';
+            }
+
+            const rateEl = document.getElementById('overallConversionRate');
+            if (rateEl) {
+                const hasRate = overall.conversion_rate !== null && overall.conversion_rate !== undefined;
+                rateEl.textContent = formatPercent(overall.conversion_rate);
+                rateEl.classList.toggle('pending', !hasRate);
+            }
+            setText('overallConversionVisitors', formatOptionalNumber(overall.visitors, '-'));
+            setText('overallConversionOrders', formatOptionalNumber(overall.orders));
+            setText('conversionDataNote', sourceMessage);
+
+            const rows = document.getElementById('staffConversionRows');
+            const staff = Array.isArray(data?.staff) ? data.staff : [];
+            if (!rows) return;
+            if (!staff.length) {
+                rows.innerHTML = '<tr><td colspan="6">暂无店员转化率数据</td></tr>';
+                return;
+            }
+            rows.innerHTML = staff.map(item => {
+                const pending = item.status !== 'ready';
+                return `<tr>
+                    <td>${escapeHtml(item.name)}</td>
+                    <td>${escapeHtml(item.shift || '待接入排班')}</td>
+                    <td>${escapeHtml(formatOptionalNumber(item.visitors))}</td>
+                    <td>${escapeHtml(formatOptionalNumber(item.orders))}</td>
+                    <td class="${pending ? 'value-pending' : ''}">${escapeHtml(formatPercent(item.conversion_rate))}</td>
+                    <td><span class="tag ${pending ? 'info' : 'success'}">${escapeHtml(item.status_text || (pending ? '待接入' : '已接入'))}</span></td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function loadConversions() {
+            try {
+                const res = await fetch('/api/conversions');
+                renderConversions(await res.json());
+            } catch (e) {
+                console.error('转化率数据加载失败:', e);
+                const rows = document.getElementById('staffConversionRows');
+                if (rows) rows.innerHTML = '<tr><td colspan="6">转化率数据加载失败</td></tr>';
+                setText('overallConversionRate', '加载失败');
+                setText('conversionDataNote', '转化率数据加载失败，请稍后刷新。');
+            }
+        }
+
         function showView(id) {
             document.querySelectorAll('.view').forEach(view => view.classList.toggle('active', view.id === id));
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.view === id));
@@ -1135,8 +1360,13 @@
             document.getElementById('pageTitle').textContent = meta[0];
             document.getElementById('pageSubtitle').textContent = meta[1];
             if (id === 'history') loadHistory();
+            if (id === 'analytics') loadConversions();
             if (id === 'settings' || id === 'monitor' || id === 'diagnostics') loadConfig();
             if (id === 'diagnostics') loadHealth();
+            if (id === 'zones') {
+                loadConfig();
+                loadZones();
+            }
         }
 
         function updateClock() {
@@ -1284,6 +1514,146 @@
             }, 0);
         }
 
+        function clamp01(value) {
+            return Math.max(0, Math.min(1, value));
+        }
+
+        function zonePointToSvg(point) {
+            return `${point[0] * 1000},${point[1] * 1000}`;
+        }
+
+        function getPointerNorm(event) {
+            const overlay = document.getElementById('zoneOverlay');
+            const rect = overlay.getBoundingClientRect();
+            return [
+                clamp01((event.clientX - rect.left) / rect.width),
+                clamp01((event.clientY - rect.top) / rect.height)
+            ];
+        }
+
+        function selectZone(key) {
+            selectedZoneKey = key;
+            renderZoneList();
+            renderZones();
+        }
+
+        function renderZoneList() {
+            const list = document.getElementById('zoneList');
+            if (!list) return;
+            const entries = Object.entries(zonesData);
+            if (!entries.length) {
+                list.innerHTML = '<div class="empty-state"><div><div class="icon">暂无</div><div>没有可编辑区域</div></div></div>';
+                return;
+            }
+            list.innerHTML = entries.map(([key, zone]) => (
+                `<button type="button" class="${key === selectedZoneKey ? 'active' : ''}" onclick="selectZone('${escapeHtml(key)}')">${escapeHtml(zone.name || key)}</button>`
+            )).join('');
+        }
+
+        function renderZones() {
+            const overlay = document.getElementById('zoneOverlay');
+            const selectedName = document.getElementById('selectedZoneName');
+            if (!overlay) return;
+            overlay.innerHTML = '';
+            Object.entries(zonesData).forEach(([key, zone]) => {
+                const points = zone.points || [];
+                if (points.length < 3) return;
+                const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                polygon.setAttribute('points', points.map(zonePointToSvg).join(' '));
+                polygon.setAttribute('class', `zone-polygon ${key === selectedZoneKey ? 'active' : ''}`);
+                polygon.addEventListener('pointerdown', () => selectZone(key));
+                overlay.appendChild(polygon);
+
+                const cx = points.reduce((sum, p) => sum + p[0], 0) / points.length * 1000;
+                const cy = points.reduce((sum, p) => sum + p[1], 0) / points.length * 1000;
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', cx);
+                label.setAttribute('y', cy);
+                label.setAttribute('text-anchor', 'middle');
+                label.setAttribute('class', 'zone-label');
+                label.textContent = zone.name || key;
+                overlay.appendChild(label);
+
+                if (key === selectedZoneKey) {
+                    points.forEach((point, index) => {
+                        const handle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                        handle.setAttribute('cx', point[0] * 1000);
+                        handle.setAttribute('cy', point[1] * 1000);
+                        handle.setAttribute('r', 13);
+                        handle.setAttribute('class', 'zone-handle');
+                        handle.addEventListener('pointerdown', (event) => {
+                            event.preventDefault();
+                            draggingPoint = {zoneKey: key, pointIndex: index};
+                            handle.setPointerCapture(event.pointerId);
+                        });
+                        overlay.appendChild(handle);
+                    });
+                }
+            });
+            const selected = zonesData[selectedZoneKey];
+            if (selectedName) selectedName.textContent = selected ? selected.name : '未选择';
+        }
+
+        async function loadZones() {
+            const status = document.getElementById('zoneEditorStatus');
+            if (status) status.textContent = '正在读取区域配置';
+            try {
+                const res = await fetch('/api/zones');
+                const data = await res.json();
+                zonesData = data.zones || {};
+                if (!selectedZoneKey || !zonesData[selectedZoneKey]) {
+                    selectedZoneKey = Object.keys(zonesData)[0] || '';
+                }
+                renderZoneList();
+                renderZones();
+                if (status) status.textContent = '拖动黄色角点调整区域';
+            } catch (e) {
+                console.error('区域加载失败:', e);
+                if (status) status.textContent = '区域加载失败，请刷新重试';
+            }
+        }
+
+        async function saveZones() {
+            const status = document.getElementById('zoneEditorStatus');
+            if (status) status.textContent = '正在保存区域';
+            try {
+                const res = await fetch('/api/zones', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({zones: zonesData})
+                });
+                const result = await res.json();
+                if (!result.success) throw new Error(result.error || '保存失败');
+                zonesData = result.zones || zonesData;
+                renderZoneList();
+                renderZones();
+                if (status) status.textContent = result.message || '识别区域已保存';
+                showToast('识别区域已保存');
+            } catch (e) {
+                if (status) status.textContent = e.message || '区域保存失败';
+                showToast('区域保存失败');
+            }
+        }
+
+        async function resetZones() {
+            const status = document.getElementById('zoneEditorStatus');
+            if (status) status.textContent = '正在恢复默认区域';
+            try {
+                const res = await fetch('/api/zones/reset', {method: 'POST'});
+                const result = await res.json();
+                if (!result.success) throw new Error(result.error || '恢复失败');
+                zonesData = result.zones || {};
+                selectedZoneKey = Object.keys(zonesData)[0] || '';
+                renderZoneList();
+                renderZones();
+                if (status) status.textContent = result.message || '已恢复默认识别区域';
+                showToast('已恢复默认识别区域');
+            } catch (e) {
+                if (status) status.textContent = e.message || '恢复默认失败';
+                showToast('恢复默认失败');
+            }
+        }
+
         function applyVideoSourceState(cfg) {
             currentVideoSource = cfg.video_source || 'camera';
             const isVideo = currentVideoSource === 'video';
@@ -1383,12 +1753,24 @@
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', () => showView(btn.dataset.view));
         });
+        document.addEventListener('pointermove', (event) => {
+            if (!draggingPoint) return;
+            const zone = zonesData[draggingPoint.zoneKey];
+            if (!zone || !zone.points || !zone.points[draggingPoint.pointIndex]) return;
+            zone.points[draggingPoint.pointIndex] = getPointerNorm(event);
+            renderZones();
+        });
+        document.addEventListener('pointerup', () => {
+            draggingPoint = null;
+        });
         updateClock();
         setInterval(updateClock, 30000);
         loadConfig();
         loadHealth();
         loadHistory();
+        loadConversions();
         setInterval(loadHistory, 10000);
+        setInterval(loadConversions, 10000);
         setInterval(loadHealth, 10000);
     </script>
 </body>

@@ -27,6 +27,7 @@ http://localhost:8080
 - `index.html`
 - `demo-video.mp4`
 - `zone-preview.png`
+- `calibration-bg.jpg`
 
 > 本演示使用公开测试录像和模拟数据，不连接真实摄像头、生产数据库或外部 API，也不包含任何密钥。
 
